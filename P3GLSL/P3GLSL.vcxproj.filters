@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{6816f2f4-09da-446d-bb03-b3d2a2093e37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{5733b9ec-8bbc-47f2-ba7e-82b2f9eb2ce9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="scr\BOX.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\auxiliar.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\GLSLProgram.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Mesh.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Texture.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Camera.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\GEngine.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Light.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Scene.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\Spline.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\GodRay.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="scr\SmoothSurface.h">
+      <Filter>src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="scr\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\auxiliar.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\GLSLProgram.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Mesh.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Texture.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Camera.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Light.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Scene.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Spline.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\GodRay.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\SmoothSurface.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\shaders_P3\shader.v1.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P3\shader.v1.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P3\shaderHeightMap.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P3\shaderHeightMap.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P3\waterShader.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P3\waterShader.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P3\skyboxShader.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P3\skyboxShader.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P3\shaderHeightMapCeiling.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P3\shaderHeightMapCeiling.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P3\shaderGodRay.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P3\shaderGodRay.vert">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>
