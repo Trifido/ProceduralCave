@@ -42,8 +42,11 @@ void GLSLProgram::InitShader(const char *vname, const char *fname){
 	uModelViewProjMat = glGetUniformLocation(program, "modelViewProj");
 	uProj = glGetUniformLocation(program, "projection");
 	uView = glGetUniformLocation(program, "view");
+	uPosCam = glGetUniformLocation(program, "CameraEye");
 	//Inicializamos las uniform que se van a usar
 	uColorTex = glGetUniformLocation(program, "colorTex");
+	uColorTex2 = glGetUniformLocation(program, "colorTex2");
+	uColorTex3 = glGetUniformLocation(program, "colorTex3");
 	uEmiTex = glGetUniformLocation(program, "emiTex");
 	uSpecularTex = glGetUniformLocation(program, "specularTex");
 	uNormalTex = glGetUniformLocation(program, "normalTex");
@@ -279,11 +282,20 @@ void GLSLProgram::AddUnifTime(float time) {
 	glUniform1f(uTime, time);
 }
 
+void GLSLProgram::AddUnifPosCamera(glm::vec3 posCam) {
+	glUniform3fv(uPosCam, 1, &(posCam[0]));
+}
+
 void GLSLProgram::AddUnifTex(unsigned int color, unsigned int emi, unsigned int spec, unsigned int nor){
 	AddUnifTexC(color);
 	AddUnifTexE(emi);
 	AddUnifTexS(spec);
 	AddUnifTexN(nor);
+}
+
+void GLSLProgram::AddUnifTexEmissive(unsigned int emi1, unsigned int emi2) {
+	AddUnifTexC2(emi1);
+	//AddUnifTexC3(emi2);
 }
 
 void GLSLProgram::AddUnifDispTex(unsigned int idDisp)
@@ -331,6 +343,20 @@ void GLSLProgram::AddUnifTexBoxMap(unsigned int boxMap) {
 	glBindTexture(GL_TEXTURE_CUBE_MAP, boxMap);
 	//Le digo al shader que la textura de color la tiene que coger en la 0
 	glUniform1i(uboxMapTex, 5);
+}
+
+void GLSLProgram::AddUnifTexC2(unsigned int color) {
+	glActiveTexture(GL_TEXTURE0 + 6);
+	glBindTexture(GL_TEXTURE_2D, color);
+	//Le digo al shader que la textura de color la tiene que coger en la 0
+	glUniform1i(uColorTex2, 6);
+}
+
+void GLSLProgram::AddUnifTexC3(unsigned int color) {
+	glActiveTexture(GL_TEXTURE0 + 7);
+	glBindTexture(GL_TEXTURE_2D, color);
+	//Le digo al shader que la textura de color la tiene que coger en la 0
+	glUniform1i(uColorTex3, 7);
 }
 
 int GLSLProgram::getPos(){

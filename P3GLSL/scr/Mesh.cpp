@@ -57,6 +57,8 @@ Mesh::Mesh(char *nameTex1, char *nameTex2, char *nameTex3)
 {
 	typeMesh = DISPLACEMENT_MESH;
 	colorTex = Texture(nameTex1);
+	colorTex2 = Texture("../img/colorTexture2.jpg");
+	colorTex3 = Texture("../img/colorTexture3.png");
 	specularTex = Texture(nameTex2);
 	displacementMap = Texture(nameTex3);
 	scalingFactor = new float;
@@ -122,10 +124,13 @@ void Mesh::InitRender(Camera &camera)
 
 	if (this->GetTypeMesh() == DISPLACEMENT_MESH || this->GetTypeMesh() == HOLE_MESH)
 	{
+		(*programa).AddUnifPosCamera(camera.GetPos());
 		(*programa).AddUnifDispTex(GetDisplacementId());
 		(*programa).AddUnifScalingFactor(*scalingFactor);
-
 		(*programa).AddUnifDisp1D(smSurface->GetValues(), smSurface->GetTotalValues());
+
+		if (this->GetTypeMesh() == DISPLACEMENT_MESH)
+			(*programa).AddUnifTexEmissive(GetEmiteId2(), GetEmiteId3());
 	}
 	else if (this->GetTypeMesh() == DYNAMIC_MESH || this->GetTypeMesh() == GODRAY_MESH)
 	{
@@ -277,6 +282,8 @@ void Mesh::Destroy(GLSLProgram &programa)
 	if (programa.getTexCoordU() != -1) glDeleteBuffers(1, &texCoordUVBO);
 
 	colorTex.Destroy();
+	colorTex2.Destroy();
+	colorTex3.Destroy();
 	emiTex.Destroy();
 	specularTex.Destroy();
 	normalTex.Destroy();
@@ -456,6 +463,13 @@ void Mesh::InitPlane(float width, float height, float disp, float scaleFactor, b
 	LoadIBO(triangleIndexVBO, numFaces * sizeof(unsigned int) * 3, arrayIndex);
 
 	colorTex.LoadTexture();
+
+	if (this->typeMesh == DISPLACEMENT_MESH)
+	{
+		colorTex2.LoadTexture();
+		colorTex3.LoadTexture();
+	}
+
 	specularTex.LoadTexture();
 	displacementMap.LoadTexture();
 
@@ -710,6 +724,10 @@ void Mesh::GeneratePlane(int width, int height, float tiling, float density, boo
 
 void Mesh::GenerateCurvedPlane(int width, int height, float tiling, float density, float offsetInside, bool invert)
 {
+	isCurvePlane = true;
+	this->density = density;
+	this->offsetInside = offsetInside;
+	this->invert = invert;
 	vertexArray = new float[width * height * 3];
 	normalArray = new float[width * height * 3];
 	numVerts = width * height;
@@ -907,4 +925,133 @@ void Mesh::GenerateSky(char *filename1, char *filename2, char *filename3, char *
 
 float Distance2DwY(Vector v1, Vector v2) {
 	return sqrt(pow(v2.x - v1.x, 2) + pow(v2.z - v1.z, 2));
+}
+
+void Mesh::UpdateMesh()
+{
+	if (isCurvePlane)
+	{
+		int tamW = numVertsU;
+		int tamH = numVerts / numVertsU;
+
+		if (tamW % 2 == 0)
+			tamW--;
+		if (tamH % 2 == 0)
+			tamH--;
+
+		//arrayIndex = new unsigned int[tamW * tamH * 2 * 3];
+
+		//----------------------------------------------------------------------------------------------
+
+		int numCurves = path->GetTotalCurves();
+
+		int changeCurve = numVertsU / numCurves;
+		float muestra = 1.0f / changeCurve;
+		float m = 0.0f;
+
+		int indCurve = 0;
+		int ind = 0;
+		for (int w = 0; w < numVertsU; w++)
+		{
+			if (m >= 1.0f) {
+				m = 0.0f;
+				indCurve++;
+			}
+
+			Vector coord = path->CalculateNewCoords(m, indCurve);
+			Vector initialCoord = path->CalculateInitialCoord(m, indCurve);
+			Vector normal = Vector(coord.x - initialCoord.x, 0.0f, coord.z - initialCoord.z);
+			Vector invnormal = Vector(initialCoord.x - coord.x, 0.0f, initialCoord.z - coord.z);
+			normal.Normalize();
+			invnormal.Normalize();
+
+			for (int h = 0; h < tamH+1 ; h++, ind += 3)
+			{
+				vertexArray[ind] = coord.x; // (w)* density;
+				vertexArray[ind + 1] = float(h) * density; //float(h) * density; 
+				vertexArray[ind + 2] = coord.z;
+
+				if (!invert)
+				{
+					normalArray[ind] = invnormal.x;
+					normalArray[ind + 2] = invnormal.z;
+				}
+				else
+				{
+					normalArray[ind] = normal.x;
+					normalArray[ind + 2] = normal.z;
+				}
+
+				normalArray[ind + 1] = 0.0f;
+			}
+
+			m += muestra;
+		}
+
+		int offInd = 0;
+		ind -= (tamH+1) * 3;
+		for (int h = 0, offInd = 0; h < tamH+1; h++, ind += 3, offInd += 3)
+		{
+			vertexArray[ind] = vertexArray[h * 3];
+			vertexArray[ind + 1] = vertexArray[h * 3 + 1];
+			vertexArray[ind + 2] = vertexArray[h * 3 + 2];
+
+			normalArray[ind] = normalArray[h * 3];
+			normalArray[ind + 1] = normalArray[h * 3 + 1];
+			normalArray[ind + 2] = normalArray[h * 3 + 2];
+		}
+	}
+}
+
+void Mesh::UpdatePlaneMesh()
+{
+
+	//for (int i = 0; i < numVerts * 3; i += 3)
+	//	printf("%f, %f, %f\n", vertexArray[i], vertexArray[i + 1], vertexArray[i + 2]);
+	//path->PrintfSpline();
+
+	path->UpdateSpline();
+	UpdateMesh();
+
+	//printf("\n ---------------------------------- \n");
+
+	//for (int i = 0; i < numVerts * 3; i += 3)
+	//	printf("%f, %f, %f\n", vertexArray[i], vertexArray[i + 1], vertexArray[i + 2]);
+
+	//Creo el VAO
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	if ((*programa).getPos() != -1)
+	{
+		LoadVBO(posVBO, numVerts * sizeof(float) * 3, vertexArray, 3, (*programa).getPos());
+	}
+	if ((*programa).getColor() != -1)
+	{
+		LoadVBO(colorVBO, cubeNVertex * sizeof(float) * 3, cubeVertexColor, 3, (*programa).getColor());
+	}
+	if ((*programa).getNormal() != -1)
+	{
+		LoadVBO(normalVBO, numVerts * sizeof(float) * 3, normalArray, 3, (*programa).getNormal());
+	}
+	if ((*programa).getTexCoord() != -1)
+	{
+		LoadVBO(texCoordVBO, numVerts * sizeof(float) * 2, uvArray, 2, (*programa).getTexCoord());
+	}
+	if ((*programa).getTangent() != -1)
+	{
+		LoadVBO(tangentVBO, numVerts * sizeof(float) * 3, tangentArray, 3, (*programa).getTangent());
+	}
+	if ((*programa).getTexCoordU() != -1)
+	{
+		LoadVBO(texCoordUVBO, numVerts * sizeof(int), uArray, 1, (*programa).getTexCoordU());
+	}
+
+	LoadIBO(triangleIndexVBO, numFaces * sizeof(unsigned int) * 3, arrayIndex);
+
+	colorTex.LoadTexture();
+	specularTex.LoadTexture();
+	displacementMap.LoadTexture();
+
+	model = glm::mat4(1.0f);
 }

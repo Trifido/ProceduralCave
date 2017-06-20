@@ -10,6 +10,7 @@ in vec3 pos;
 in vec3 norm;
 in vec2 texCoord;
 in vec3 tangent;
+in vec4 newVertexPos;
 
 //Texturas del objeto
 
@@ -50,6 +51,17 @@ vec3 spotShade(int i);
 vec3 direcShade(int i);
 vec3 CalcBumpedNormal();
 
+float getFogFactor(float d)
+{
+    const float FogMax = 70.0;
+    const float FogMin = 20;
+
+    if (d>=FogMax) return 1;
+    if (d<=FogMin) return 0;
+
+    return 1 - (FogMax - d) / (FogMax - FogMin);
+}
+
 void main()
 {
 	Ka = texture(colorTex, texCoord).rgb;
@@ -62,24 +74,38 @@ void main()
 	N = normalize (norm);
 	//N = CalcBumpedNormal();
 
-	
+	vec3 colorP;
 
-	outColor = color;
+	outColor = vec4(0);
 
 	for(int i = 0; i < numPoint; i++)
 	{
-		outColor += vec4(shade(i), 0.0); 
+		colorP = shade(i);
 	}
 
 	for(int i = 0; i < numSpot; i++)
 	{
-		outColor += vec4(spotShade(i), 0.0);   
+		colorP = spotShade(i);   
 	}
 
 	for(int i = 0; i < numDirec; i++)
 	{
-		outColor += vec4(direcShade(i), 0.0);   
+		colorP = direcShade(i);   
 	}
+
+	//outColor = vec4( applyFog( colorP, length(pos), vec3(0.0, 0.0, 0.0), pos), 1.0);
+
+	float d = length(pos);
+    float alpha = getFogFactor(d);
+
+	vec4 FogColor = vec4(0.3,0.4,0.5, 1.0);
+
+    outColor = mix(vec4(colorP, 1.0), FogColor, alpha);
+
+	if(newVertexPos.y < 45)
+		outColor.w = 1.0;
+	else
+		outColor.w = 0.0;
 }
 
 vec3 shade(int i)

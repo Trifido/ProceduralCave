@@ -105,3 +105,8 @@ void Camera::Translate(glm::vec3 cord)
 {
 	this->view *= glm::translate(glm::mat4(1.0f), cord);
 }
+
+glm::vec3 Camera::GetPos()
+{
+	return glm::vec3(view[3].x, view[3].y, view[3].z);
+}

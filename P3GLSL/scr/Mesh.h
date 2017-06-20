@@ -53,6 +53,8 @@ class Mesh
 
 		//Textures
 		Texture colorTex;
+		Texture colorTex2;
+		Texture colorTex3;
 		Texture emiTex;
 		Texture specularTex;
 		Texture normalTex;
@@ -72,7 +74,11 @@ class Mesh
 
 		//Path Animation
 		float	timelapse;
-		Spline	*path;
+		
+		//Flag curvePlane to update
+		bool isCurvePlane = false;
+		float density, offsetInside;
+		bool invert;
 
 		//Smooth Surface
 		SmoothSurface *smSurface;
@@ -89,6 +95,7 @@ public:
 		int			numFaces;
 		int			numVertsU;
 
+		Spline		*path;
 
 	private:
 		void LoadVBO(unsigned int &VBO, int dataSize, const float *vertexArray, GLint size, int idAtrib);
@@ -128,6 +135,8 @@ public:
 		void AddDisplacementHoleShader(GLSLProgram &ps);
 
 		inline unsigned int GetEmiteId() { return emiTex.GetId(); }
+		inline unsigned int GetEmiteId2() { return colorTex2.GetId(); }
+		inline unsigned int GetEmiteId3() { return colorTex3.GetId(); }
 		inline unsigned int GetColorId() { return colorTex.GetId(); }
 		inline unsigned int GetSpecularId() { return specularTex.GetId(); }
 		inline unsigned int GetNormalId() { return normalTex.GetId(); }
@@ -148,6 +157,10 @@ public:
 
 		inline void ChangeScalingFactor(float data) { *scalingFactor += data; }
 		inline float GetScalingFactor() { return *scalingFactor; }
+
+		bool isCurvedPlane() { return isCurvePlane; }
+		void UpdateMesh();
+		void UpdatePlaneMesh();
 };
 
 //float DistanceVector(Vector v1, Vector v2) {

@@ -44,6 +44,8 @@ private:
 	int numPoint = 0;
 	int numFocal = 0;
 
+	std::string tipoKey;
+
 public:
 	Scene();
 	~Scene() { Destroy(); }
@@ -62,6 +64,8 @@ public:
 	void ChangePlaneMesh(unsigned char key);
 	//Change type render
 	void ChangeTypeRender(unsigned char key);
+	//Change Paths
+	void ChangePaths(unsigned char key);
 };
 
 #endif

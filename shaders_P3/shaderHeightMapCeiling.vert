@@ -17,6 +17,7 @@ out vec3 pos;
 out vec3 norm;
 out vec2 texCoord;
 out vec3 tangent;
+out vec4 newVertexPos;
 
 void main()
 {
@@ -33,7 +34,7 @@ void main()
 
 	float df = 0.30*bumpData.x + 0.59*bumpData.y + 0.11*bumpData.z;
 
-	vec4 newVertexPos = vec4(inPos + inNormal * df * scalingFactor, 1.0);
+	newVertexPos = vec4(inPos + inNormal * df * scalingFactor, 1.0);
 
 	if(newVertexPos.y < 45)
 		color.w = 1.0;

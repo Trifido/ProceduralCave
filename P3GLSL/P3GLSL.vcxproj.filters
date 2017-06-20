@@ -118,5 +118,11 @@
     <None Include="..\shaders_P3\shaderGodRay.vert">
       <Filter>shaders</Filter>
     </None>
+    <None Include="..\shaders_P3\shaderHeightMapFog.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P3\shaderHeightMapFog.vert">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

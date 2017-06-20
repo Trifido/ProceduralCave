@@ -37,6 +37,7 @@ class Spline
 		Vector *vectPathCoords;
 		Vector *vectPathScaleCoords;
 		float *pathCoords;
+		float factorScale;
 
 	public:
 		Spline();
@@ -57,6 +58,10 @@ class Spline
 		inline Vector *GetInitScalePoints(){ return initScalePoints; }
 		inline int GetNumInitPoints() { return numInitPoints; }
 		void ScaleInitPoint(float factorScale);
+		void TranslationX(int id, float x);
+		void TranslationZ(int id, float z);
+		void UpdateSpline();
+		void PrintfSpline();
 };
 
 #endif

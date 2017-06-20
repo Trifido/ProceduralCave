@@ -25,14 +25,14 @@
 // Datos que se almacenan en la memoria de la CPU
 //////////////////////////////////////////////////////////////
 
-//Camera
-Camera camera;
-
 //Spline
 Spline spline(0.0f, 65);
 
+//Camera
+Camera camera;
+
 //GLSLPrograms
-GLSLProgram programa, programa1, programa2, programa3, programaCube, programaSky, programaGodRay;
+GLSLProgram programa, programa1, programa2, programa3, programaCube, programaSky, programaGodRay, programaSuelo;
 
 //Meshes
 Mesh paredExterior("../img/planet.png", "../img/bump.png", "../img/noise_Voronoi.png");
@@ -41,10 +41,6 @@ Mesh techo("../img/textureCave.jpg", "../img/bump.png", "../img/noise_Voronoi.pn
 Mesh suelo("../img/textureCave.jpg", "../img/bump.png", "../img/noise_Voronoi.png");
 Mesh water;
 Mesh skyBox(true);
-//Mesh sky("../img/skybox/top.jpg", "../img/bump.png", "../img/noise_Voronoi.png");
-//
-//Mesh cube;
-//
 GodRay *godRay;
 
 //Variable cambio intensidad
@@ -77,7 +73,8 @@ int main(int argc, char** argv)
 
 	initContext(argc, argv);
 	initOGL();
-	programa.InitShader("../shaders_P3/shaderHeightMap.vert", "../shaders_P3/shaderHeightMap.frag");
+	programa.InitShader("../shaders_P3/shaderHeightMapFog.vert", "../shaders_P3/shaderHeightMapFog.frag");
+	programaSuelo.InitShader("../shaders_P3/shaderHeightMapFog.vert", "../shaders_P3/shaderHeightMapFog.frag");
 	programa1.InitShader("../shaders_P3/shaderHeightMapCeiling.vert", "../shaders_P3/shaderHeightMapCeiling.frag");
 	programa2.InitShader("../shaders_P3/waterShader.vert", "../shaders_P3/waterShader.frag");
 	programa3.InitShader("../shaders_P3/skyboxShader.vert", "../shaders_P3/skyboxShader.frag");
@@ -138,13 +135,14 @@ void initOGL(){
 	//Activar Culling, pintar cara front y back rellenas.
 	glFrontFace(GL_CCW);
 	glPolygonMode(GL_FRONT, GL_FILL);
-	glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 
 	camera.InitCamera(20.0f, 75.0f);
 }
 
 void destroy(){
 	programa.Destroy();
+	programaSuelo.Destroy();
 	programa1.Destroy();
 	programa2.Destroy();
 	programa3.Destroy();
@@ -158,15 +156,13 @@ void destroy(){
 	paredExterior.Destroy(programa);
 	paredInterior.Destroy(programa);
 	techo.Destroy(programa1);
-	suelo.Destroy(programa);
+	suelo.Destroy(programaSuelo);
 	water.Destroy(programa2);
 	skyBox.Destroy(programa3);
-	//sky.Destroy(programaSky);
 
 	for (int i = 0; i < spline.GetNumInitPoints(); i++)
 		godRay[i].Destroy();
 
-	//cube.Destroy(programaGodRay);
 }
 
 void initObj()
@@ -176,6 +172,9 @@ void initObj()
 
 	programa.AddLight(light1);
 	programa.AddAmbientLight(scene1.getAmbientLight());
+
+	programaSuelo.AddLight(light1);
+	programaSuelo.AddAmbientLight(scene1.getAmbientLight());
 
 	programa1.AddLight(light1);
 	programa1.AddAmbientLight(scene1.getAmbientLight());
@@ -194,9 +193,8 @@ void initObj()
 
 	paredExterior.AddDisplacementShader(programa);
 	paredInterior.AddDisplacementShader(programa);
-//	sky.AddDisplacementShader(programaSky);
 	techo.AddDisplacementHoleShader(programa1);
-	suelo.AddDisplacementShader(programa);
+	suelo.AddDisplacementShader(programaSuelo);
 	water.AddDisplacementShader(programa2);
 
 	int numPointSpline = spline.GetNumInitPoints();
@@ -212,20 +210,13 @@ void initObj()
 	}
 
 	skyBox.AddShader(programa3);
-
-	////cube.AddShader(programaGodRay);
-
-	////cube.InitDefaultMesh();
-	////cube.Traslation(glm::vec3(0.0f, 27.0f, 0.0f));
 		
 	paredExterior.InitPlaneMesh(1000, 500, 0.40f, 0.5f, 0.1f, 100.0f, false, true, 1.0f);
 	paredInterior.InitPlaneMesh(500, 500, 0.40f, 0.5f, 0.1f, 50.0f, true, true, 1.0f);
 	suelo.InitPlane(500, 500, 1.0f, 1.0f, false, 2.0f);
-	//sky.InitPlane(500, 500, 1.0f, 0.0f, true, 1.0f);
-	//sky.Traslation(glm::vec3(0.0, 10.0f, 0.0));
 	techo.InitPlane(500, 500, 1.0f, 1.0f, true, 6.0f);
 
-	water.GenerateWater("../img/blueWater.jpg", "../img/bump.png", "../img/perlin.jpg", 40.0f);//blueWater
+	water.GenerateWater("../img/blueWater.jpg", "../img/bump.png", "../img/perlin.jpg", 40.0f);
 	water.InitPlane(500, 500, 1.0f, 1.0f, false);
 	water.Traslation(glm::vec3(0.0, 2.0f, 0.0));
 
@@ -238,7 +229,6 @@ void initObj()
 	scene1.AddObject(paredExterior);
 	scene1.AddObject(paredInterior);
 	scene1.AddObject(suelo);
-	//scene1.AddObject(sky);
 	scene1.AddObject(techo);
 	scene1.AddObject(water);
 
@@ -283,6 +273,7 @@ void keyboardFunc(unsigned char key, int x, int y){
 	light1.LightController(key, camera);
 	scene1.ChangePlaneMesh(key);
 	scene1.ChangeTypeRender(key);
+	scene1.ChangePaths(key);
 }
 
 void mouseFunc(int button, int state, int x, int y){}

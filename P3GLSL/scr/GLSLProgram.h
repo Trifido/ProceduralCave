@@ -33,7 +33,7 @@ private:
 	int uProj;
 	int uView;
 
-	int uColorTex;
+	int uColorTex, uColorTex2, uColorTex3;
 	int uEmiTex;
 	int uSpecularTex;
 	int uNormalTex;
@@ -43,6 +43,8 @@ private:
 
 	//Plane scaling factor
 	int uScalingFactor;
+
+	int uPosCam;
 
 	//Water displacement texture time
 	int uTime;
@@ -77,6 +79,8 @@ private:
 	void AddUnifPosLight(int idUnif, glm::vec3 *vect, int sizeArray);
 	void AddUnifIntLight(int idUnif, glm::vec3 *vect, int sizeArray);
 	void AddUnifTexC(unsigned int color);
+	void AddUnifTexC2(unsigned int color);
+	void AddUnifTexC3(unsigned int color);
 	void AddUnifTexE(unsigned int emi);
 	void AddUnifTexS(unsigned int spec);
 	void AddUnifTexN(unsigned int nor);
@@ -96,6 +100,7 @@ public:
 	void AddUnifMat4fvP(glm::mat4 &mat);
 	void AddUnifMat4fvV(glm::mat4 &mat);
 	void AddUnifTex(unsigned int color, unsigned int emi, unsigned int spec, unsigned int nor);
+	void AddUnifTexEmissive(unsigned int emi1, unsigned int emi2);
 	void AddUnifDispTex(unsigned int displacement);
 	void AddUnifLight();
 	void AddUnifTexBoxMap(unsigned int boxMap);
@@ -105,6 +110,8 @@ public:
 	void AddUnifTime(float time);
 	//SMOOTH SURFACE
 	void AddUnifDisp1D(float *vect, int sizeArray);
+	
+	void AddUnifPosCamera(glm::vec3 posCam);
 
 	int getPos();
 	int getColor();

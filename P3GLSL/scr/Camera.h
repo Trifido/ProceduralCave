@@ -59,6 +59,7 @@ class Camera
 		bool InitCamera(float yCamera, float factorScale);
 		void AnimateCamera();
 		void Translate(glm::vec3 cord);
+		glm::vec3 GetPos();
 };
 
 #endif

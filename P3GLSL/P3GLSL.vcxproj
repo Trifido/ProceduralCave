@@ -46,6 +46,8 @@
     <None Include="..\shaders_P3\shaderHeightMap.vert" />
     <None Include="..\shaders_P3\shaderHeightMapCeiling.frag" />
     <None Include="..\shaders_P3\shaderHeightMapCeiling.vert" />
+    <None Include="..\shaders_P3\shaderHeightMapFog.frag" />
+    <None Include="..\shaders_P3\shaderHeightMapFog.vert" />
     <None Include="..\shaders_P3\skyboxShader.frag" />
     <None Include="..\shaders_P3\skyboxShader.vert" />
     <None Include="..\shaders_P3\waterShader.frag" />

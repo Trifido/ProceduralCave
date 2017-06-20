@@ -48,6 +48,7 @@ Spline::Spline(float yCamera, float factorScale)
 	numCurves = 3;
 	numInitPoints = 6;
 	totalPoints = numCurves * pointsPerCurve;
+	this->factorScale = factorScale;
 
 	this->initPoints = new Vector[numInitPoints];
 	this->initScalePoints = new Vector[numInitPoints];
@@ -132,6 +133,7 @@ Vector Spline::CalculateInitialCoord(float t, int indCurve)
 
 void Spline::ScaleZPoints(float factor)
 {
+	this->factorScale = factor;
 	for (int i = 0; i < numInitPoints; i++)
 	{
 		scalePoints[i].z *= factor;
@@ -140,6 +142,7 @@ void Spline::ScaleZPoints(float factor)
 
 void Spline::ScaleXPoints(float factor)
 {
+	this->factorScale = factor;
 	for (int i = 0; i < numInitPoints; i++)
 	{
 		scalePoints[i].x *= factor;
@@ -159,6 +162,8 @@ void Spline::GenerateScaleCoords()
 
 void Spline::ScaleInitPoint(float factorScale)
 {
+	this->factorScale = factorScale;
+
 	for (int i = 0; i < numInitPoints; i++)
 	{
 		scalePoints[i].x *= factorScale;
@@ -166,5 +171,48 @@ void Spline::ScaleInitPoint(float factorScale)
 		this->initScalePoints[i].x = scalePoints[i].x;
 		this->initScalePoints[i].y = 0.0f;
 		this->initScalePoints[i].z = scalePoints[i].z;
+	}
+}
+
+void Spline::TranslationX(int id, float x)
+{
+	//this->initScalePoints[id].x += x;
+	this->initPoints[id].x += x;
+}
+
+void Spline::TranslationZ(int id, float z)
+{
+	//this->initScalePoints[id].z += z;
+	this->initPoints[id].z += z;
+}
+
+void Spline::UpdateSpline()
+{
+	for (int i = 0; i < numInitPoints; i++)
+	{
+		scalePoints[i].x = initPoints[i].x * factorScale;
+		scalePoints[i].z = initPoints[i].z * factorScale;
+		printf("Scale: %f\n", factorScale);
+		printf("%f, 0.0, %f\n", scalePoints[i].x, scalePoints[i].z);
+	}
+
+	int indice = 0;
+
+	for (int sp = 0, indEj = 0; sp < 3; sp++, indEj++) {
+		for (float t = 0.0f; t < 1.0f; t += 1.0f / pointsPerCurve, indice++) {
+			vectPathScaleCoords[indice] = GenerateSpline(t, scalePoints[indEj], scalePoints[indEj + 1], scalePoints[indEj + 2], scalePoints[indEj + 3]);
+		}
+	}
+}
+
+void Spline::PrintfSpline()
+{
+	int indice = 0;
+	int indiceLinear = 0;
+
+	for (int sp = 0, indEj = 0; sp < 3; sp++, indEj++) {
+		for (float t = 0.0f; t < 1.0f; t += 1.0f / pointsPerCurve, indiceLinear += 3, indice++) {
+			printf("%f, 0.0, %f\n", vectPathScaleCoords[indice].x, vectPathScaleCoords[indice].z);
+		}
 	}
 }

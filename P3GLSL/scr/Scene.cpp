@@ -108,17 +108,17 @@ void Scene::ChangeTypeRender(unsigned char key)
 	static TypeRender type;
 	bool change = false;
 
-	if (key == '1' && type != TYPE_POINTS)
+	if (key == 'z' && type != TYPE_POINTS)
 	{
 		type = TYPE_POINTS;
 		change = true;
 	}
-	else if (key == '2' && type != TYPE_LINES)
+	else if (key == 'x' && type != TYPE_LINES)
 	{
 		type = TYPE_LINES;
 		change = true;
 	}
-	else if (key == '3' && type != TYPE_FILLS)
+	else if (key == 'c' && type != TYPE_FILLS)
 	{
 		type = TYPE_FILLS;
 		change = true;
@@ -129,6 +129,105 @@ void Scene::ChangeTypeRender(unsigned char key)
 		for (unsigned int i = 0; i < objects.size(); i++)
 			objects.at(i)->SetTypeRender(type);
 	}
+}
 
+void Scene::ChangePaths(unsigned char key)
+{
+	static bool changePath = false;
+	static unsigned char antKey;
+	static std::string antTipoKey;
+	float coordX, coordZ;
 
+	if (key == 'p' || key == 'P')
+	{
+		changePath = true;
+		antKey = key;
+	}
+
+	if (changePath)
+	{
+		if (key == '1')
+		{
+			tipoKey = "Point1";
+			antTipoKey = tipoKey;
+		}
+		else if (key == '2')
+		{
+			tipoKey = "Point2";
+			antTipoKey = tipoKey;
+		}
+		else if (key == '3')
+		{
+			tipoKey = "Point3";
+			antTipoKey = tipoKey;
+		}
+		else if (key == '4')
+		{
+			tipoKey = "Point4";
+			antTipoKey = tipoKey;
+		}
+		else
+		{
+			if (key == 'i') {
+				printf("okkk3");
+				coordX = 0.0f;
+				coordZ = 0.5f;
+				antKey = key;
+			}
+			else if (key == 'k') {
+				coordX =  0.0f;
+				coordZ = -0.5f;
+				antKey = key;
+			}
+			else if (key == 'j') {
+				coordX = -0.5f;
+				coordZ = 0.0f;
+				antKey = key;
+			}
+			else if (key == 'l') {
+				coordX = 0.5f;
+				coordZ = 0.0f;
+				antKey = key;
+			}
+			else
+			{
+				tipoKey = "NULL";
+				antKey = 'N';
+			}
+			
+			if (antKey != 'N')
+			{
+				for (unsigned int i = 0; i < objects.size(); i++)
+				{
+					if (objects.at(i)->isCurvedPlane())
+					{
+						if (tipoKey == "Point1") {
+							(objects.at(i)->path)->TranslationX(0, coordX);
+							(objects.at(i)->path)->TranslationZ(0, coordZ);
+							objects.at(i)->UpdatePlaneMesh();
+						}
+						else if (tipoKey == "Point2") {
+							(objects.at(i)->path)->TranslationX(1, coordX);
+							(objects.at(i)->path)->TranslationZ(1, coordZ);
+							objects.at(i)->UpdatePlaneMesh();
+						}
+						else if (tipoKey == "Point3") {
+							(objects.at(i)->path)->TranslationX(2, coordX);
+							(objects.at(i)->path)->TranslationZ(2, coordZ);
+							objects.at(i)->UpdatePlaneMesh();
+						}
+						else if (tipoKey == "Point4") {
+							(objects.at(i)->path)->TranslationX(3, coordX);
+							(objects.at(i)->path)->TranslationZ(3, coordZ);
+							objects.at(i)->UpdatePlaneMesh();
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		antKey = key;
+	}
 }
