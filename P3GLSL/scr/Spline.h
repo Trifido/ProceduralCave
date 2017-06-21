@@ -2,6 +2,7 @@
 #define _SPLINE_H
 
 #include <iostream>
+#include <vector>
 
 class Vector
 {
@@ -35,6 +36,7 @@ class Spline
 		Vector *initScalePoints;
 		Vector *scalePoints;
 		Vector *vectPathCoords;
+		std::vector<Vector> vectPathCamera;
 		Vector *vectPathScaleCoords;
 		float *pathCoords;
 		float factorScale;

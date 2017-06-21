@@ -42,6 +42,7 @@ Mesh suelo("../img/textureCave.jpg", "../img/bump.png", "../img/noise_Voronoi.pn
 Mesh water;
 Mesh skyBox(true);
 GodRay *godRay;
+Mesh plant;
 
 //Variable cambio intensidad
 Light light1;
@@ -137,7 +138,7 @@ void initOGL(){
 	glPolygonMode(GL_FRONT, GL_FILL);
 	glDisable(GL_CULL_FACE);
 
-	camera.InitCamera(20.0f, 75.0f);
+	camera.InitCamera(20.0f, 55.0f);
 }
 
 void destroy(){
@@ -159,6 +160,7 @@ void destroy(){
 	suelo.Destroy(programaSuelo);
 	water.Destroy(programa2);
 	skyBox.Destroy(programa3);
+	plant.Destroy(programaCube);
 
 	for (int i = 0; i < spline.GetNumInitPoints(); i++)
 		godRay[i].Destroy();
@@ -196,6 +198,7 @@ void initObj()
 	techo.AddDisplacementHoleShader(programa1);
 	suelo.AddDisplacementShader(programaSuelo);
 	water.AddDisplacementShader(programa2);
+	plant.AddShader(programaCube);
 
 	int numPointSpline = spline.GetNumInitPoints();
 	godRay = new GodRay[numPointSpline];
@@ -222,9 +225,11 @@ void initObj()
 
 	skyBox.InitSky();
 	skyBox.Scalation(glm::vec3(400.0f, 400.0f, 400.0f));
-	
 
-	////scene1.AddObject(cube);
+	//plant.CreatePlant();
+	//plant.Traslation(glm::vec3(0.0, 0.0, 0.0));
+
+	//scene1.AddObject(cube);
 	scene1.AddObject(skyBox);
 	scene1.AddObject(paredExterior);
 	scene1.AddObject(paredInterior);
@@ -235,6 +240,8 @@ void initObj()
 	for (int i = 0; i < spline.GetNumInitPoints(); i++)
 		godRay[i].AddToScene(scene1);
 	
+
+	//scene1.AddObject(plant);
 	
 
 	scene1.AddLight(light1);

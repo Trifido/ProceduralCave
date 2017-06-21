@@ -63,6 +63,10 @@ bool Camera::InitCamera(float yCamera, float factorScale)
 	this->view[3].z = -6.0f;
 
 	path = new Spline(yCamera, factorScale);
+
+	this->view[3].y = -20.0f;
+	this->view[3].x = path->GetInitScalePoints()[0].x;
+	this->view[3].z = path->GetInitScalePoints()[0].z;
 	//path->ScaleZPoints(offsetInside);
 	//path->ScaleXPoints(offsetInside);
 
@@ -97,7 +101,7 @@ void Camera::AnimateCamera()
 	//printf("%f %f %f\n", coord.x, coord.y, coord.z);
 	view[3].z = coord.z;
 	view[3].x = coord.x;
-	timelapse += 0.05f;
+	timelapse += 0.1f;
 	//REPARAR GIRO DE CÁMARA CON LA SPLINE
 }
 

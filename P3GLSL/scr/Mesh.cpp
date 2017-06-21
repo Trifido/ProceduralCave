@@ -385,7 +385,9 @@ void Mesh::InitPlaneMesh(int numVertX, int numVertY, float disp, float scaleFact
 {
 	GenerateCurvedPlane(500, 500, tiling, density, offsetInside, invert);
 
-	*scalingFactor = scaleFactor;
+	//*scalingFactor = scaleFactor;
+
+	*scalingFactor = scaleFactor * 17.0f;
 
 	//Creo el VAO
 	glGenVertexArrays(1, &vao);
@@ -429,7 +431,11 @@ void Mesh::InitPlane(float width, float height, float disp, float scaleFactor, b
 {
 	GeneratePlane((int)width, (int)height, tiling, disp, invert);
 
-	*scalingFactor = scaleFactor;
+	if(typeMesh == DYNAMIC_MESH)
+		*scalingFactor = scaleFactor * 13.0f;
+	else
+		*scalingFactor = scaleFactor * 16.0f;
+	//(scaleFactor + 0.01f) * 4.0f;
 
 	//Creo el VAO
 	glGenVertexArrays(1, &vao);
@@ -1052,6 +1058,171 @@ void Mesh::UpdatePlaneMesh()
 	colorTex.LoadTexture();
 	specularTex.LoadTexture();
 	displacementMap.LoadTexture();
+
+	model = glm::mat4(1.0f);
+}
+
+void Mesh::GeneratePlants(int numEdgeVertex)
+{
+	const float PI2 = 6.28318530718;
+	float ang = PI2 / 10;
+	numVerts = numEdgeVertex * 3 * 10;
+	vertexArray = new float[numVerts];
+
+	for (int i = 0; i < numEdgeVertex * 3; i+=3)
+	{
+		vertexArray[i] = ((float)rand() / (RAND_MAX)) * 10;
+		vertexArray[i + 1] = (float)i * 10;
+		vertexArray[i + 2] = 0.0f;
+	}
+
+	/*for (int i = 0; i < numEdgeVertex * 3; i += 3)
+		printf("(%f, %f,%f)\n", vertexArray[i], vertexArray[i + 1], vertexArray[i + 2]);*/
+
+	
+	int width = 10;
+	int height = numEdgeVertex;
+
+	int cont = numEdgeVertex * 3;
+
+	for (float angulo = 0; angulo < PI2; angulo += ang)
+	{
+		for (int i = 0; i < numEdgeVertex * 3; i+=3)
+		{
+			float xValue = cos(angulo) * vertexArray[i] + sin(angulo) * vertexArray[i+2];
+			float yValue = vertexArray[i+1];
+			float zValue = -sin(angulo) * vertexArray[i] + cos(angulo) * vertexArray[i+2];
+
+			vertexArray[cont] = xValue;
+			vertexArray[cont+1] = yValue;
+			vertexArray[cont+2] = zValue;
+			cont += 3;
+		}
+	}
+
+	//for (int i = 0; i < numVerts; i += 3)
+	//	printf("(%f, %f,%f)\n", vertexArray[i], vertexArray[i + 1], vertexArray[i + 2]);
+
+
+
+	int tamW = width;
+	int tamH = height;
+
+	if (width % 2 == 0)
+		tamW--;
+	if (height % 2 == 0)
+		tamH--;
+
+	arrayIndex = new unsigned int[tamW * tamH * 2 * 3];
+
+	//INDICES
+	int ind = 0;
+	for (int w = 0; w < tamW; w++)
+	{
+		for (int h = 0; h < tamH; h++, ind += 6)
+		{
+			//First Triangle
+			arrayIndex[ind] = h + height * w;
+			arrayIndex[ind + 1] = h + height * w + 1;
+			arrayIndex[ind + 2] = h + height * w + height;
+
+			//Second Triangle
+			arrayIndex[ind + 3] = h + height * w + 1;
+			arrayIndex[ind + 4] = h + 1 + height * w + height;
+			arrayIndex[ind + 5] = h + height * w + height;
+		}
+	}	
+
+	//Coordinates Normales
+	uvArray = new float[width * height * 2];
+	uArray = new int[width * height];
+	normalArray = new float[width * height * 3];
+
+	for (int i = 0; i < width * height; i++) {
+
+		normalArray[i * 3] = 0.0f;
+		normalArray[i * 3 + 2] = 0.0f;
+		normalArray[i * 3 + 1] = 1.0f;
+	}
+
+	//Coordinates UV
+	float u = (float)width;
+	float v = (float)height;
+	float cU, cV;
+
+	ind = 0;
+	cU = cV = 0.0f;
+
+	for (int h = 0; h < height; h++)
+		for (int w = 0; w < width; w++)
+			uArray[h * (int)width + w] = 0.0f;
+
+	for (int w = 0; w < width; w++)
+	{
+		for (int h = 0; h < height; h++, ind += 2)
+		{
+			uvArray[ind] = cU;
+			uvArray[ind + 1] = cV;
+			cV += v;
+		}
+		cU += u;
+		cV = 0.0f;
+	}
+}
+
+void Mesh::CreatePlant()
+{
+	typeMesh = EMISSIVE_MESH;
+
+	colorTex = Texture("../img/colorTexture3.png"); //../img/color.png
+	//emiTex = Texture("../img/godRay1.jpg");//../img/emissive.png
+	specularTex = Texture("../img/specMap.png");
+
+	this->GeneratePlants(6);
+
+	*scalingFactor = 1.0f;
+
+	//Creo el VAO
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	if ((*programa).getPos() != -1)
+	{
+		LoadVBO(posVBO, numVerts * sizeof(float) * 3, vertexArray, 3, (*programa).getPos());
+	}
+	if ((*programa).getColor() != -1)
+	{
+		LoadVBO(colorVBO, cubeNVertex * sizeof(float) * 3, cubeVertexColor, 3, (*programa).getColor());
+	}
+	if ((*programa).getNormal() != -1)
+	{
+		LoadVBO(normalVBO, numVerts * sizeof(float) * 3, normalArray, 3, (*programa).getNormal());
+	}
+	if ((*programa).getTexCoord() != -1)
+	{
+		LoadVBO(texCoordVBO, numVerts * sizeof(float) * 2, uvArray, 2, (*programa).getTexCoord());
+	}
+	if ((*programa).getTangent() != -1)
+	{
+		LoadVBO(tangentVBO, numVerts * sizeof(float) * 3, tangentArray, 3, (*programa).getTangent());
+	}
+	if ((*programa).getTexCoordU() != -1)
+	{
+		LoadVBO(texCoordUVBO, numVerts * sizeof(int), uArray, 1, (*programa).getTexCoordU());
+	}
+
+	LoadIBO(triangleIndexVBO, numFaces * sizeof(unsigned int) * 3, arrayIndex);
+
+	colorTex.LoadTexture();
+
+	//if (this->typeMesh == DISPLACEMENT_MESH)
+	//{
+	//	colorTex2.LoadTexture();
+	//	colorTex3.LoadTexture();
+	//}
+
+	specularTex.LoadTexture();
+	//displacementMap.LoadTexture();
 
 	model = glm::mat4(1.0f);
 }

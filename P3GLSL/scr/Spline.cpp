@@ -93,6 +93,14 @@ Spline::Spline(float yCamera, float factorScale)
 			//printf("(%f, %f, %f)\n", vectPathCoords[indice].x, vectPathCoords[indice].y, vectPathCoords[indice].z);
 		}
 	}
+
+	indice = 0;
+
+	for (int sp = 0, indEj = 0; sp < 3; sp++, indEj++) {
+		for (float t = 0.0f; t < 1.0f; t += 1.0f / pointsPerCurve * 2, indice++) {
+			vectPathCamera.push_back(GenerateSpline(t, scalePoints[indEj], scalePoints[indEj + 1], scalePoints[indEj + 2], scalePoints[indEj + 3]));
+		}
+	}
 }
 
 Vector Spline::GenerateSpline(float t, Vector p1, Vector p2, Vector p3, Vector p4)
@@ -117,8 +125,15 @@ Vector Spline::GetCoord(int t)
 
 Vector Spline::GetScaleCoord(int t)
 {
-	t %= totalPoints;
-	return vectPathScaleCoords[t];
+	t %= totalPoints*2;
+	return vectPathCamera.at(t);
+
+	//int indice = 0;
+	//for (int sp = 0, indEj = 0; sp < 3; sp++, indEj++) {
+	//	for (float t = 0.0f; t < 1.0f; t += 1.0f / pointsPerCurve, indice++) {
+	//		vectPathScaleCoords[indice] = GenerateSpline(t, scalePoints[indEj], scalePoints[indEj + 1], scalePoints[indEj + 2], scalePoints[indEj + 3]);
+	//	}
+	//}
 }
 
 Vector Spline::CalculateNewCoords(float t, int indCurve)
@@ -158,6 +173,15 @@ void Spline::GenerateScaleCoords()
 			vectPathScaleCoords[indice] = GenerateSpline(t, scalePoints[indEj], scalePoints[indEj + 1], scalePoints[indEj + 2], scalePoints[indEj + 3]);
 		}
 	}
+
+	indice = 0;
+
+	for (int sp = 0, indEj = 0; sp < 3; sp++, indEj++) {
+		for (float t = 0.0f; t < 1.0f; t += 1.0f / pointsPerCurve*2, indice++) {
+			vectPathCamera.push_back(GenerateSpline(t, scalePoints[indEj], scalePoints[indEj + 1], scalePoints[indEj + 2], scalePoints[indEj + 3]));
+		}
+	}
+	
 }
 
 void Spline::ScaleInitPoint(float factorScale)

@@ -22,7 +22,8 @@ enum TypeMesh
 	DYNAMIC_MESH = 3,
 	SKYBOX_MESH = 4,
 	HOLE_MESH = 5,
-	GODRAY_MESH = 6
+	GODRAY_MESH = 6,
+	EMISSIVE_MESH = 7
 };
 
 enum TypeRender
@@ -154,6 +155,8 @@ public:
 		void GenerateWater(char *nameTex1, char *nameTex2, char *nameTex3, float scale);
 		void GenerateSky(char *filename1, char *filename2, char *filename3, char *filename4, char *filename5, char *filename6);
 		void GenerateGodRay(char *nameTex1, char *nameTex2, float scale);
+		void CreatePlant();
+		void GeneratePlants(int numEdgeVertex);
 
 		inline void ChangeScalingFactor(float data) { *scalingFactor += data; }
 		inline float GetScalingFactor() { return *scalingFactor; }
