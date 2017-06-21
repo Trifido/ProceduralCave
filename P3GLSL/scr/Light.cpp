@@ -2,7 +2,7 @@
 
 Light::Light() {
 	type = POINT_LIGHT;
-	intensity = glm::vec3(0.5f);
+	intensity = glm::vec3(0.0f);
 	lightCoord = glm::vec3(0.0f, 5.0f, 0.0f);
 	lightPosShader = glm::vec3(1.0f);
 }

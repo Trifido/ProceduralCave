@@ -55,7 +55,9 @@ void Scene::Animation(){
 
 	for(unsigned int i = 0; i < objects.size(); i++)
 		(*objects.at(i)).PathAnimation();
-	cameras.at(0)->AnimateCamera();
+	
+	//ANIMACION DE LA CÁMARA
+	//cameras.at(0)->AnimateCamera();
 }
 
 void Scene::Destroy()
