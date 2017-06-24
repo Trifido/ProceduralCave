@@ -99,7 +99,7 @@ void Mesh::InitRender(Camera &camera)
 
 	(*programa).UseProgram();
 
-	if (typeMesh == DYNAMIC_MESH || typeMesh == HOLE_MESH || typeMesh == GODRAY_MESH)
+	if (typeMesh == DYNAMIC_MESH || typeMesh == HOLE_MESH || typeMesh == GODRAY_MESH || typeMesh == EMISSIVE_MESH)
 	{
 		(*programa).EnableBlending();
 	}
@@ -176,7 +176,7 @@ void Mesh::Render()
 			glDrawElements(GL_LINES, numFaces * 3, GL_UNSIGNED_INT, (void*)0);
 	}
 
-	if (typeMesh == DYNAMIC_MESH || typeMesh == HOLE_MESH || typeMesh == GODRAY_MESH)
+	if (typeMesh == DYNAMIC_MESH || typeMesh == HOLE_MESH || typeMesh == GODRAY_MESH || typeMesh == EMISSIVE_MESH)
 	{
 		(*programa).DisableBlending();
 	}
@@ -922,6 +922,21 @@ void Mesh::GenerateGodRay(char *nameTex1, char *nameTex2, float scale)
 	timelapse = 0.0f;
 }
 
+void Mesh::GeneratePlant(char *nameTex1, char *nameTex2, float scale)
+{
+	typeMesh = EMISSIVE_MESH;
+	colorTex = Texture(nameTex1);
+	specularTex = Texture(nameTex1);
+	emiTex = Texture(nameTex2);
+	//displacementMap = Texture();
+	//displacementMap.WaterTexture(nameTex2);
+	scalingFactor = new float;
+
+	*scalingFactor = 0.0f;
+
+	timelapse = 0.0f;
+}
+
 void Mesh::GenerateSky(char *filename1, char *filename2, char *filename3, char *filename4, char *filename5, char *filename6)
 {
 	typeMesh = SKYBOX_MESH;
@@ -1011,18 +1026,8 @@ void Mesh::UpdateMesh()
 
 void Mesh::UpdatePlaneMesh()
 {
-
-	//for (int i = 0; i < numVerts * 3; i += 3)
-	//	printf("%f, %f, %f\n", vertexArray[i], vertexArray[i + 1], vertexArray[i + 2]);
-	//path->PrintfSpline();
-
 	path->UpdateSpline();
 	UpdateMesh();
-
-	//printf("\n ---------------------------------- \n");
-
-	//for (int i = 0; i < numVerts * 3; i += 3)
-	//	printf("%f, %f, %f\n", vertexArray[i], vertexArray[i + 1], vertexArray[i + 2]);
 
 	//Creo el VAO
 	glGenVertexArrays(1, &vao);
@@ -1062,13 +1067,27 @@ void Mesh::UpdatePlaneMesh()
 	model = glm::mat4(1.0f);
 }
 
-void Mesh::GeneratePlants(int numEdgeVertex)
+void Mesh::GenerateProceduralPlants(int numEdgeVertex)
 {
 	const float PI2 = 6.28318530718;
-	float ang = PI2 / 10;
-	numVerts = numEdgeVertex * 3 * 10;
-	vertexArray = new float[numVerts];
+	int width = 10;
+	int height = numEdgeVertex;
 
+	numVerts = width * height;
+	numVertsU = width;
+	vertexArray = new float[numVerts * 3];
+
+	int tamW = width;
+	int tamH = height;
+
+	if (width % 2 == 0)
+		tamW--;
+	if (height % 2 == 0)
+		tamH--;
+
+	arrayIndex = new unsigned int[tamW * tamH * 2 * 3];
+
+	//Generamos los vertices del perfil
 	for (int i = 0; i < numEdgeVertex * 3; i+=3)
 	{
 		vertexArray[i] = ((float)rand() / (RAND_MAX)) * 10;
@@ -1076,14 +1095,8 @@ void Mesh::GeneratePlants(int numEdgeVertex)
 		vertexArray[i + 2] = 0.0f;
 	}
 
-	/*for (int i = 0; i < numEdgeVertex * 3; i += 3)
-		printf("(%f, %f,%f)\n", vertexArray[i], vertexArray[i + 1], vertexArray[i + 2]);*/
-
-	
-	int width = 10;
-	int height = numEdgeVertex;
-
 	int cont = numEdgeVertex * 3;
+	float ang = PI2 / 10;
 
 	for (float angulo = 0; angulo < PI2; angulo += ang)
 	{
@@ -1100,20 +1113,9 @@ void Mesh::GeneratePlants(int numEdgeVertex)
 		}
 	}
 
-	//for (int i = 0; i < numVerts; i += 3)
-	//	printf("(%f, %f,%f)\n", vertexArray[i], vertexArray[i + 1], vertexArray[i + 2]);
+	for (int i = 0; i < numVerts*3; i+=3)
+		printf("i: %i -> (%f, %f,%f)\n", i, vertexArray[i], vertexArray[i + 1], vertexArray[i + 2]);
 
-
-
-	int tamW = width;
-	int tamH = height;
-
-	if (width % 2 == 0)
-		tamW--;
-	if (height % 2 == 0)
-		tamH--;
-
-	arrayIndex = new unsigned int[tamW * tamH * 2 * 3];
 
 	//INDICES
 	int ind = 0;
@@ -1135,7 +1137,6 @@ void Mesh::GeneratePlants(int numEdgeVertex)
 
 	//Coordinates Normales
 	uvArray = new float[width * height * 2];
-	uArray = new int[width * height];
 	normalArray = new float[width * height * 3];
 
 	for (int i = 0; i < width * height; i++) {
@@ -1153,10 +1154,6 @@ void Mesh::GeneratePlants(int numEdgeVertex)
 	ind = 0;
 	cU = cV = 0.0f;
 
-	for (int h = 0; h < height; h++)
-		for (int w = 0; w < width; w++)
-			uArray[h * (int)width + w] = 0.0f;
-
 	for (int w = 0; w < width; w++)
 	{
 		for (int h = 0; h < height; h++, ind += 2)
@@ -1170,17 +1167,68 @@ void Mesh::GeneratePlants(int numEdgeVertex)
 	}
 }
 
-void Mesh::CreatePlant()
+void Mesh::CreateProceduralPlant()
 {
-	typeMesh = EMISSIVE_MESH;
+	//typeMesh = EMISSIVE_MESH;
 
-	colorTex = Texture("../img/colorTexture3.png"); //../img/color.png
-	//emiTex = Texture("../img/godRay1.jpg");//../img/emissive.png
-	specularTex = Texture("../img/specMap.png");
+	//colorTex = Texture("../img/colorTexture3.png"); //../img/color.png
+	////emiTex = Texture("../img/godRay1.jpg");//../img/emissive.png
+	//specularTex = Texture("../img/specMap.png");
 
-	this->GeneratePlants(6);
+	//this->GeneratePlant();
 
-	*scalingFactor = 1.0f;
+	//*scalingFactor = 1.0f;
+
+	////Creo el VAO
+	//glGenVertexArrays(1, &vao);
+	//glBindVertexArray(vao);
+
+	//if ((*programa).getPos() != -1)
+	//{
+	//	LoadVBO(posVBO, numVerts * sizeof(float) * 3, vertexArray, 3, (*programa).getPos());
+	//}
+	//if ((*programa).getColor() != -1)
+	//{
+	//	LoadVBO(colorVBO, cubeNVertex * sizeof(float) * 3, cubeVertexColor, 3, (*programa).getColor());
+	//}
+	//if ((*programa).getNormal() != -1)
+	//{
+	//	LoadVBO(normalVBO, numVerts * sizeof(float) * 3, normalArray, 3, (*programa).getNormal());
+	//}
+	//if ((*programa).getTexCoord() != -1)
+	//{
+	//	LoadVBO(texCoordVBO, numVerts * sizeof(float) * 2, uvArray, 2, (*programa).getTexCoord());
+	//}
+	////if ((*programa).getTangent() != -1)
+	////{
+	////	LoadVBO(tangentVBO, numVerts * sizeof(float) * 3, tangentArray, 3, (*programa).getTangent());
+	////}
+	////if ((*programa).getTexCoordU() != -1)
+	////{
+	////	LoadVBO(texCoordUVBO, numVerts * sizeof(int), uArray, 1, (*programa).getTexCoordU());
+	////}
+
+	//LoadIBO(triangleIndexVBO, numFaces * sizeof(unsigned int) * 3, arrayIndex);
+
+	//colorTex.LoadTexture();
+
+	////if (this->typeMesh == DISPLACEMENT_MESH)
+	////{
+	////	colorTex2.LoadTexture();
+	////	colorTex3.LoadTexture();
+	////}
+
+	//specularTex.LoadTexture();
+	////displacementMap.LoadTexture();
+
+	//model = glm::mat4(1.0f);
+}
+
+void Mesh::InitPlanePlant(float width, float height, float disp, float scaleFactor, bool invert, float tiling)
+{
+	GeneratePlane((int)width, (int)height, tiling, disp, invert);
+
+	*scalingFactor = scaleFactor;
 
 	//Creo el VAO
 	glGenVertexArrays(1, &vao);
@@ -1190,10 +1238,6 @@ void Mesh::CreatePlant()
 	{
 		LoadVBO(posVBO, numVerts * sizeof(float) * 3, vertexArray, 3, (*programa).getPos());
 	}
-	if ((*programa).getColor() != -1)
-	{
-		LoadVBO(colorVBO, cubeNVertex * sizeof(float) * 3, cubeVertexColor, 3, (*programa).getColor());
-	}
 	if ((*programa).getNormal() != -1)
 	{
 		LoadVBO(normalVBO, numVerts * sizeof(float) * 3, normalArray, 3, (*programa).getNormal());
@@ -1202,26 +1246,12 @@ void Mesh::CreatePlant()
 	{
 		LoadVBO(texCoordVBO, numVerts * sizeof(float) * 2, uvArray, 2, (*programa).getTexCoord());
 	}
-	if ((*programa).getTangent() != -1)
-	{
-		LoadVBO(tangentVBO, numVerts * sizeof(float) * 3, tangentArray, 3, (*programa).getTangent());
-	}
-	if ((*programa).getTexCoordU() != -1)
-	{
-		LoadVBO(texCoordUVBO, numVerts * sizeof(int), uArray, 1, (*programa).getTexCoordU());
-	}
 
 	LoadIBO(triangleIndexVBO, numFaces * sizeof(unsigned int) * 3, arrayIndex);
 
 	colorTex.LoadTexture();
-
-	//if (this->typeMesh == DISPLACEMENT_MESH)
-	//{
-	//	colorTex2.LoadTexture();
-	//	colorTex3.LoadTexture();
-	//}
-
 	specularTex.LoadTexture();
+	emiTex.LoadTexture();
 	//displacementMap.LoadTexture();
 
 	model = glm::mat4(1.0f);

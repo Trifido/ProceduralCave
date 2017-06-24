@@ -19,6 +19,7 @@
     <ClInclude Include="scr\GodRay.h" />
     <ClInclude Include="scr\Light.h" />
     <ClInclude Include="scr\Mesh.h" />
+    <ClInclude Include="scr\Plant.h" />
     <ClInclude Include="scr\Scene.h" />
     <ClInclude Include="scr\SmoothSurface.h" />
     <ClInclude Include="scr\Spline.h" />
@@ -32,6 +33,7 @@
     <ClCompile Include="scr\Light.cpp" />
     <ClCompile Include="scr\main.cpp" />
     <ClCompile Include="scr\Mesh.cpp" />
+    <ClCompile Include="scr\Plant.cpp" />
     <ClCompile Include="scr\Scene.cpp" />
     <ClCompile Include="scr\SmoothSurface.cpp" />
     <ClCompile Include="scr\Spline.cpp" />
@@ -48,6 +50,8 @@
     <None Include="..\shaders_P3\shaderHeightMapCeiling.vert" />
     <None Include="..\shaders_P3\shaderHeightMapFog.frag" />
     <None Include="..\shaders_P3\shaderHeightMapFog.vert" />
+    <None Include="..\shaders_P3\shaderPlant.frag" />
+    <None Include="..\shaders_P3\shaderPlant.vert" />
     <None Include="..\shaders_P3\skyboxShader.frag" />
     <None Include="..\shaders_P3\skyboxShader.vert" />
     <None Include="..\shaders_P3\waterShader.frag" />

@@ -44,6 +44,7 @@ vec3 Ke;
 vec3 N;
 
 float n;
+float w;
 
 vec3 shade(int i);
 vec3 spotShade(int i);
@@ -64,6 +65,7 @@ float getFogFactor(float d)
 void main()
 {
 	Ka = texture(colorTex, texCoord).rgb;
+	w = texture(colorTex, texCoord).w;
 	Kd = Ka;
 	Ke = texture(emiTex, texCoord).rgb;
 	Ks = texture(specularTex, texCoord).xyz;

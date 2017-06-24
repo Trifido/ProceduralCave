@@ -45,6 +45,9 @@
     <ClInclude Include="scr\SmoothSurface.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="scr\Plant.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="scr\main.cpp">
@@ -78,6 +81,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="scr\SmoothSurface.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="scr\Plant.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -122,6 +128,12 @@
       <Filter>shaders</Filter>
     </None>
     <None Include="..\shaders_P3\shaderHeightMapFog.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P3\shaderPlant.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\shaders_P3\shaderPlant.vert">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

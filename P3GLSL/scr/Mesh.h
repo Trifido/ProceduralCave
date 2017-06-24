@@ -155,8 +155,10 @@ public:
 		void GenerateWater(char *nameTex1, char *nameTex2, char *nameTex3, float scale);
 		void GenerateSky(char *filename1, char *filename2, char *filename3, char *filename4, char *filename5, char *filename6);
 		void GenerateGodRay(char *nameTex1, char *nameTex2, float scale);
-		void CreatePlant();
-		void GeneratePlants(int numEdgeVertex);
+		void CreateProceduralPlant();
+		void GenerateProceduralPlants(int numEdgeVertex);
+		void InitPlanePlant(float width, float height, float disp, float scaleFactor, bool invert, float tiling = 1.0f);
+		void GeneratePlant(char *nameTex1, char *nameTex2, float scale);
 
 		inline void ChangeScalingFactor(float data) { *scalingFactor += data; }
 		inline float GetScalingFactor() { return *scalingFactor; }

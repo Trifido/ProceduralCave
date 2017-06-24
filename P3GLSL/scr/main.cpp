@@ -7,6 +7,7 @@
 #include "Scene.h"
 #include "Spline.h"
 #include "GodRay.h"
+#include "Plant.h"
 
 #include <windows.h>
 
@@ -32,7 +33,7 @@ Spline spline(0.0f, 65);
 Camera camera;
 
 //GLSLPrograms
-GLSLProgram programa, programa1, programa2, programa3, programaCube, programaSky, programaGodRay, programaSuelo;
+GLSLProgram programa, programa1, programa2, programa3, programaCube, programaSky, programaGodRay, programaSuelo, programaPlant;
 
 //Meshes
 Mesh paredExterior("../img/planet.png", "../img/bump.png", "../img/noise_Voronoi.png");
@@ -42,13 +43,14 @@ Mesh suelo("../img/textureCave.jpg", "../img/bump.png", "../img/noise_Voronoi.pn
 Mesh water;
 Mesh skyBox(true);
 GodRay *godRay;
-Mesh plant;
+Plant *plant;
 
 //Variable cambio intensidad
 Light light1;
 Light lightGodRay;
 Light light2(DIRECTIONAL_LIGHT);
 Light *godLights;
+Light *plantLights;
 //Light light3(SPOT_LIGHT);
 
 float valorIntensidad = 0.5f;
@@ -84,6 +86,7 @@ int main(int argc, char** argv)
 	programaCube.InitShader("../shaders_P3/shader.v1.vert", "../shaders_P3/shader.v1.frag");
 	programaSky.InitShader("../shaders_P3/shaderHeightMap.vert", "../shaders_P3/shaderHeightMap.frag");
 	programaGodRay.InitShader("../shaders_P3/shaderGodRay.vert", "../shaders_P3/shaderGodRay.frag");
+	programaPlant.InitShader("../shaders_P3/shaderPlant.vert", "../shaders_P3/shaderPlant.frag");
 
 	initObj();
 
@@ -152,6 +155,7 @@ void destroy(){
 	programaCube.Destroy();
 	programaSky.Destroy();
 	programaGodRay.Destroy();
+	programaPlant.Destroy();
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -162,11 +166,12 @@ void destroy(){
 	suelo.Destroy(programaSuelo);
 	water.Destroy(programa2);
 	skyBox.Destroy(programa3);
-	plant.Destroy(programaCube);
 
 	for (int i = 0; i < spline.GetNumInitPoints(); i++)
+	{
 		godRay[i].Destroy();
-
+		plant[i].Destroy();
+	}
 }
 
 void initObj()
@@ -174,6 +179,7 @@ void initObj()
 	Vector *initsPoints = spline.GetInitScalePoints();
 	int numPointSpline = spline.GetNumInitPoints();
 	godLights = new Light[numPointSpline];
+	plantLights = new Light[numPointSpline];
 
 	for (int i = 0; i < numPointSpline; i++)
 	{
@@ -184,13 +190,16 @@ void initObj()
 		programaSuelo.AddLight(godLights[i]);
 		programa1.AddLight(godLights[i]);
 		programa2.AddLight(godLights[i]);
-	}
 
+		plantLights[i].SetIntensity(glm::vec3(0.1, 0.5, 0.1));
+		plantLights[i].SetPosition(glm::vec3(initsPoints[i].x, 10.0f, initsPoints[i].z));
+
+		programaPlant.AddLight(plantLights[i]);
+	}
 
 	light2.SetIntensity(glm::vec3(1.0, 1.0, 1.0));
 	lightGodRay.SetIntensity(glm::vec3(1.0, 0.0, 0.0));
 	lightGodRay.SetPosition(glm::vec3(0.0f, 20.0f, 0.0f));
-	//light3.SetIntensity(glm::vec3(0.0, 0.0, 1.0));
 
 	programaCube.AddLight(light1);
 	programaCube.AddAmbientLight(scene1.getAmbientLight());
@@ -205,16 +214,20 @@ void initObj()
 	techo.AddDisplacementHoleShader(programa1);
 	suelo.AddDisplacementShader(programaSuelo);
 	water.AddDisplacementShader(programa2);
-	plant.AddShader(programaCube);
 
 	godRay = new GodRay[numPointSpline];
+	plant = new Plant[numPointSpline];
 
 	for (int i = 0; i < numPointSpline; i++)
+	{
 		godRay[i].AddShader(programaGodRay);
+		plant[i].AddShader(programaPlant);
+	}
 
 	for (int i = 0; i < numPointSpline; i++)
 	{
 		godRay[i].InitGodRay(glm::vec2(initsPoints[i].x, initsPoints[i].z));
+		plant[i].InitPlant(glm::vec2(initsPoints[i].x, initsPoints[i].z));
 	}
 
 	skyBox.AddShader(programa3);
@@ -231,10 +244,6 @@ void initObj()
 	skyBox.InitSky();
 	skyBox.Scalation(glm::vec3(400.0f, 400.0f, 400.0f));
 
-	//plant.CreatePlant();
-	//plant.Traslation(glm::vec3(0.0, 0.0, 0.0));
-
-	//scene1.AddObject(cube);
 	scene1.AddObject(skyBox);
 	scene1.AddObject(paredExterior);
 	scene1.AddObject(paredInterior);
@@ -243,19 +252,15 @@ void initObj()
 	scene1.AddObject(water);
 
 	for (int i = 0; i < spline.GetNumInitPoints(); i++)
+	{
+		plant[i].AddToScene(scene1);
 		godRay[i].AddToScene(scene1);
-	
-
-	//scene1.AddObject(plant);
-	
+	}	
 
 	scene1.AddLight(light1);
 	scene1.AddLight(light2);
-	//scene1.AddLight(light3);
 	
 	scene1.AddCamera(camera);
-
-	
 }
 
 void renderFunc()
