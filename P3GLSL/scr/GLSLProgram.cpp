@@ -24,6 +24,7 @@ void GLSLProgram::InitShader(const char *vname, const char *fname){
 	glBindAttribLocation(program, 3, "inTexCoord");
 	glBindAttribLocation(program, 4, "inTangent");
 	glBindAttribLocation(program, 5, "inTexCoordU");
+	glBindAttribLocation(program, 6, "inTexCoordV");
 
 	//LINKADO
 	glLinkProgram(program);
@@ -35,6 +36,7 @@ void GLSLProgram::InitShader(const char *vname, const char *fname){
 	inTexCoord = glGetAttribLocation(program, "inTexCoord");
 	inTangent = glGetAttribLocation(program, "inTangent");
 	inTexCoordU = glGetAttribLocation(program, "inTexCoordU");
+	inTexCoordV = glGetAttribLocation(program, "inTexCoordV");
 
 	//Las variable uniform se declaran despues del linkado
 	uNormalMat = glGetUniformLocation(program, "normal");
@@ -55,6 +57,7 @@ void GLSLProgram::InitShader(const char *vname, const char *fname){
 	//Mapa de desplazamiento
 	uDisplacementMap = glGetUniformLocation(program, "displacementMap");
 	uDisplacement1D = glGetUniformLocation(program, "displacement1D");
+	uGradientColor = glGetUniformLocation(program, "gradientColor");
 
 	//Uniform Luz
 	//Uniform Luz Ambiental
@@ -307,6 +310,11 @@ void GLSLProgram::AddUnifDisp1D(float *vect, int sizeArray) {
 	glUniform1fv(uDisplacement1D, sizeArray, &(vect[0]));
 }
 
+void GLSLProgram::AddUnifGradColor(float *gradColor, int sizeArray)
+{
+	glUniform1fv(uGradientColor, sizeArray, &(gradColor[0]));
+}
+
 void GLSLProgram::AddUnifTexC(unsigned int color){
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, color);
@@ -377,6 +385,10 @@ int GLSLProgram::getTexCoord(){
 
 int GLSLProgram::getTexCoordU() {
 	return inTexCoordU;
+}
+
+int GLSLProgram::getTexCoordV() {
+	return inTexCoordV;
 }
 
 int GLSLProgram::getTangent(){

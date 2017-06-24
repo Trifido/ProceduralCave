@@ -58,7 +58,7 @@ Mesh::Mesh(char *nameTex1, char *nameTex2, char *nameTex3)
 	typeMesh = DISPLACEMENT_MESH;
 	colorTex = Texture(nameTex1);
 	colorTex2 = Texture("../img/colorTexture2.jpg");
-	colorTex3 = Texture("../img/colorTexture3.png");
+	colorTex3 = Texture("../img/noiseEmisiveLight.jpg");
 	specularTex = Texture(nameTex2);
 	displacementMap = Texture(nameTex3);
 	scalingFactor = new float;
@@ -122,15 +122,18 @@ void Mesh::InitRender(Camera &camera)
 		(*programa).AddUnifTex(GetColorId(), GetEmiteId(), GetSpecularId(), GetNormalId());
 	}
 
-	if (this->GetTypeMesh() == DISPLACEMENT_MESH || this->GetTypeMesh() == HOLE_MESH)
+	if (this->GetTypeMesh() == DISPLACEMENT_MESH || this->GetTypeMesh() == HOLE_MESH || this->GetTypeMesh() == CURVE_MESH)
 	{
 		(*programa).AddUnifPosCamera(camera.GetPos());
 		(*programa).AddUnifDispTex(GetDisplacementId());
 		(*programa).AddUnifScalingFactor(*scalingFactor);
 		(*programa).AddUnifDisp1D(smSurface->GetValues(), smSurface->GetTotalValues());
+		(*programa).AddUnifTexEmissive(GetEmiteId2(), GetEmiteId3());
 
-		if (this->GetTypeMesh() == DISPLACEMENT_MESH)
-			(*programa).AddUnifTexEmissive(GetEmiteId2(), GetEmiteId3());
+		if (this->GetTypeMesh() == CURVE_MESH)
+		{
+			(*programa).AddUnifGradColor(colorVertex, numVerts);
+		}
 	}
 	else if (this->GetTypeMesh() == DYNAMIC_MESH || this->GetTypeMesh() == GODRAY_MESH)
 	{
@@ -280,6 +283,7 @@ void Mesh::Destroy(GLSLProgram &programa)
 	if (programa.getTexCoord() != -1) glDeleteBuffers(1, &texCoordVBO);
 	if (programa.getTangent() != -1) glDeleteBuffers(1, &tangentVBO);
 	if (programa.getTexCoordU() != -1) glDeleteBuffers(1, &texCoordUVBO);
+	if (programa.getTexCoordV() != -1) glDeleteBuffers(1, &texCoordVVBO);
 
 	colorTex.Destroy();
 	colorTex2.Destroy();
@@ -302,6 +306,7 @@ Mesh::~Mesh()
 	glDeleteBuffers(1, &texCoordVBO);
 	glDeleteBuffers(1, &tangentVBO);
 	glDeleteBuffers(1, &texCoordUVBO);
+	glDeleteBuffers(1, &texCoordVVBO);
 
 		//Destroy(programa);
 
@@ -383,7 +388,11 @@ void Mesh::InitMesh(const std::string &pFile) {
 
 void Mesh::InitPlaneMesh(int numVertX, int numVertY, float disp, float scaleFactor, float density, float offsetInside, bool invert, bool holes, float tiling)
 {
+	typeMesh = CURVE_MESH;
+
 	GenerateCurvedPlane(500, 500, tiling, density, offsetInside, invert);
+
+	CreateColorVertex(500, 500);
 
 	//*scalingFactor = scaleFactor;
 
@@ -417,9 +426,14 @@ void Mesh::InitPlaneMesh(int numVertX, int numVertY, float disp, float scaleFact
 	{
 		LoadVBO(texCoordUVBO, numVerts * sizeof(int), uArray, 1, (*programa).getTexCoordU());
 	}
+	if ((*programa).getTexCoordV() != -1)
+	{
+		LoadVBO(texCoordVVBO, numVerts * sizeof(int), vArray, 1, (*programa).getTexCoordV());
+	}
 
 	LoadIBO(triangleIndexVBO, numFaces * sizeof(unsigned int) * 3, arrayIndex);
 
+	colorTex3.LoadTexture();
 	colorTex.LoadTexture();
 	specularTex.LoadTexture();
 	displacementMap.LoadTexture();
@@ -851,6 +865,7 @@ void Mesh::GenerateCurvedPlane(int width, int height, float tiling, float densit
 	//Coordinates Normales
 	uvArray = new float[width * height * 2];
 	uArray = new int[width * height];
+	vArray = new int[width * height];
 
 	//Coordinates UV
 	float u = tiling / (float)width;
@@ -861,8 +876,10 @@ void Mesh::GenerateCurvedPlane(int width, int height, float tiling, float densit
 	cU = cV = 0.0f;
 
 	for (int h = 0; h < height; h++)
-		for (int w = 0; w < width; w++)
+		for (int w = 0; w < width; w++) {
 			uArray[h * (int)width + w] = h;
+			vArray[h * (int)width + w] = w;
+		}
 
 	for (int w = 0; w < width; w++)
 	{
@@ -1255,4 +1272,29 @@ void Mesh::InitPlanePlant(float width, float height, float disp, float scaleFact
 	//displacementMap.LoadTexture();
 
 	model = glm::mat4(1.0f);
+}
+
+void Mesh::CreateColorVertex(int width, int height)
+{
+	float r1 = 0.0f / 255.0f;
+	float r2 = 120.0f / 255.0f;
+	float r3 = 0.0f / 255.0f;
+	bool rchange = false;
+	colorVertex = new float[width * height];
+
+	float ra = (r2 - r1) / height;
+	float rc = r1;
+	for (int fil = 0; fil < height; fil++, rc += ra)
+	{
+		for (int col = 0; col < width; col++)
+		{
+			colorVertex[fil] = rc;
+		}
+
+		if (fil >= (height * 0.5) && !rchange)
+		{
+			ra = (r3 - r2) / height;
+			rchange = true;
+		}
+	}
 }

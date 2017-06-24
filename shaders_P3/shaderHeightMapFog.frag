@@ -46,6 +46,7 @@ vec3 Kd;
 vec3 Ks;
 vec3 Ke, Ke2, Ke3;
 vec3 N;
+vec3 noiseLight;
 
 float n;
 
@@ -72,12 +73,13 @@ float getFogFactor(float d)
 
 void main()
 {
-	Ka = texture(colorTex, texCoord).rgb;
+	//Ka = texture(colorTex, texCoord).rgb;
+	Ka = color;
 	Kd = Ka;
 	Ke = texture(emiTex, texCoord).rgb;
 	Ke2 = texture(colorTex2, texCoord).rgb;
-	Ke3 = texture(colorTex3, texCoord).rgb;
 	Ks = texture(specularTex, texCoord).xyz;
+	noiseLight = texture(colorTex3, texCoord).rgb;
 	
 	n = 200.0;
 	
@@ -110,6 +112,15 @@ void main()
 
 	outColor = mix(vec4(colorP, 1.0), FogColor, alpha);
 
+	if(noiseLight.r < 0.02 && noiseLight.g < 0.02 && noiseLight.b < 0.02)
+	{
+		outColor = vec4(0.0, 1.0, 0.0, 1.0);
+	}
+	else if(noiseLight.r < 0.03 && noiseLight.g < 0.03 && noiseLight.b < 0.03)
+	{
+		outColor = vec4(0.0, 1.0, 0.7, 1.0);
+	}
+
 	//outColor = vec4(colorP, 1.0);
 }
 
@@ -133,16 +144,7 @@ vec3 shade(int i)
 	//color += clamp(specular, 0.0, 1.0);
 
 	//Color-Textura emisivo
-	if(lightPointColor.y == 0)
-	{
-		if(newVertexPos.y < 1)
-		color += Ke;
-	}
-	else
-	{
-		color += Ke2 + Ke3;
-	}
-
+	color += Ke;
 	
 	return color;
 }

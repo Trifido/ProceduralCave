@@ -8,6 +8,7 @@ in vec2 inTexCoord;
 in vec3 inNormal;
 in vec3 inTangent;
 in int inTexCoordU;
+in int inTexCoordV;
 
 uniform mat4 modelViewProj;
 uniform mat4 modelView;
@@ -15,6 +16,7 @@ uniform mat4 normal;
 uniform sampler2D displacementMap;
 uniform float scalingFactor;
 uniform float displacement1D[MAX_SIZE_DISP];
+uniform float gradientColor[MAX_SIZE_DISP];
 
 out vec3 color;
 out vec3 pos;
@@ -28,6 +30,8 @@ out vec3 lightPointColor;
 void main()
 {
 	color = inColor;
+	float redColor = gradientColor[inTexCoordV];
+	color = vec3(redColor, 0.0, 0.0);
 	tangent = (modelView * vec4(inTangent, 0)).xyz;
 	texCoord = inTexCoord;
 	norm = (normal * vec4(inNormal, 0.0)).xyz;

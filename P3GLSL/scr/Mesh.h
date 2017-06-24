@@ -23,7 +23,8 @@ enum TypeMesh
 	SKYBOX_MESH = 4,
 	HOLE_MESH = 5,
 	GODRAY_MESH = 6,
-	EMISSIVE_MESH = 7
+	EMISSIVE_MESH = 7,
+	CURVE_MESH = 8
 };
 
 enum TypeRender
@@ -49,6 +50,7 @@ class Mesh
 		unsigned int normalVBO;
 		unsigned int texCoordVBO;
 		unsigned int texCoordUVBO;
+		unsigned int texCoordVVBO;
 		unsigned int tangentVBO;
 		unsigned int triangleIndexVBO;
 
@@ -88,8 +90,10 @@ public:
 		//Assimp Mesh
 		float		*vertexArray;
 		float		*normalArray;
+		float		*colorVertex;
 		float		*uvArray;
 		int			*uArray;
+		int			*vArray;
 		float		*tangentArray;
 		unsigned	*arrayIndex;
 		int			numVerts;
@@ -104,6 +108,7 @@ public:
 		void LoadIBO(unsigned int &IBO, int dataSize, const unsigned int *indexArray);
 		void Rotate(float &angle, glm::vec3 axis);
 		void Translate(glm::vec3 cord);
+		void CreateColorVertex(int width, int height);
 
 	public:
 		Mesh();	//Default Mesh (Cube)

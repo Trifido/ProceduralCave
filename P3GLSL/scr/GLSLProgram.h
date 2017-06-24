@@ -26,6 +26,7 @@ private:
 	int inTexCoord;
 	int inTangent;
 	int inTexCoordU;
+	int inTexCoordV;
 
 	int uModelViewMat;
 	int uModelViewProjMat;
@@ -40,6 +41,7 @@ private:
 	int uDisplacementMap;
 	int uboxMapTex;
 	int uDisplacement1D;
+	int uGradientColor;
 
 	//Plane scaling factor
 	int uScalingFactor;
@@ -110,7 +112,9 @@ public:
 	void AddUnifTime(float time);
 	//SMOOTH SURFACE
 	void AddUnifDisp1D(float *vect, int sizeArray);
-	
+	//Gradient Color
+	void AddUnifGradColor(float *gradColor, int arraySize);
+
 	void AddUnifPosCamera(glm::vec3 posCam);
 
 	int getPos();
@@ -119,6 +123,7 @@ public:
 	int getTexCoord();
 	int getTangent();
 	int getTexCoordU();
+	int getTexCoordV();
 
 	void AddLight(Light &light);
 	inline void AddAmbientLight(glm::vec3 &ai){ ambientLight = ai; }

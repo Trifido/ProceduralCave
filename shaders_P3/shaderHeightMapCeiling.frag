@@ -15,6 +15,8 @@ in vec4 newVertexPos;
 //Texturas del objeto
 
 uniform sampler2D colorTex;
+uniform sampler2D colorTex2;
+uniform sampler2D colorTex3;
 uniform sampler2D emiTex;
 uniform sampler2D specularTex;
 uniform sampler2D normalTex;
@@ -43,7 +45,7 @@ vec3 Kd;
 vec3 Ks;
 vec3 Ke;
 vec3 N;
-
+vec3 noiseLight;
 float n;
 
 vec3 shade(int i);
@@ -69,7 +71,7 @@ void main()
 	Kd = Ka;
 	Ke = texture(emiTex, texCoord).rgb;
 	Ks = texture(specularTex, texCoord).xyz;
-	
+	noiseLight = texture(colorTex3, texCoord).rgb;
 	n = 200.0;
 	
 	N = normalize (norm);
@@ -102,6 +104,15 @@ void main()
 	vec4 FogColor = vec4(0.3,0.4,0.5, 1.0);
 
     outColor = mix(vec4(colorP, 1.0), FogColor, alpha);
+
+	if(noiseLight.r < 0.02 && noiseLight.g < 0.02 && noiseLight.b < 0.02)
+	{
+		outColor = vec4(0.0, 1.0, 0.0, 1.0);
+	}
+	else if(noiseLight.r < 0.03 && noiseLight.g < 0.03 && noiseLight.b < 0.03)
+	{
+		outColor = vec4(0.0, 1.0, 0.7, 1.0);
+	}
 
 	if(newVertexPos.y < 45)
 		outColor.w = 1.0;
