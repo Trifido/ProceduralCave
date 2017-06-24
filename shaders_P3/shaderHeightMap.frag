@@ -49,6 +49,7 @@ vec3 shade(int i);
 vec3 spotShade(int i);
 vec3 direcShade(int i);
 vec3 CalcBumpedNormal();
+float GetAttenuationFactor(vec3 position);
 
 void main()
 {
@@ -84,11 +85,11 @@ void main()
 
 vec3 shade(int i)
 {
-	vec3 color = Ia * Ka;
+	vec3 color =  vec3(0.1);
 
 	//Diffuse 
 	vec3 L = normalize (PosPoint[i] - pos);
-	vec3 diffuse = intPoint[i] * Kd * dot (L,N);
+	vec3 diffuse = GetAttenuationFactor(PosPoint[i]) * intPoint[i] * Kd * dot (L,N);
 	color += clamp(diffuse, 0.0, 1.0);
 	
 	//Specular
@@ -96,7 +97,7 @@ vec3 shade(int i)
 	vec3 R = normalize (reflect (-L,N));
 	float factor = max (dot (R,V), 0.01);
 
-	vec3 specular = intPoint[i] * Ks * pow(factor,n);
+	vec3 specular =  GetAttenuationFactor(PosPoint[i]) * intPoint[i] * Ks * pow(factor,n);
 	color += clamp(specular, 0.0, 1.0);
 
 	//Color-Textura emisivo
@@ -176,4 +177,18 @@ vec3 CalcBumpedNormal()
     NewNormal = TBN * BumpMapNormal;
     NewNormal = normalize(NewNormal);
     return NewNormal;
+}
+
+float GetAttenuationFactor(vec3 position)
+{
+	float result = 1.0;
+
+	float c1 = 1.0;
+	float c2 = 0.5;
+	float c3 = 0.05;
+
+	float dist = length(normalize(position));
+	result /= (c1 + c2*dist + c3*dist*dist);
+
+	return min(result, 1.0);
 }

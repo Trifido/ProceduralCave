@@ -48,6 +48,7 @@ float n;
 vec3 shade(int i);
 vec3 spotShade(int i);
 vec3 direcShade(int i);
+float GetAttenuationFactor(vec3 position);
 
 float getFogFactor(float d)
 {
@@ -86,7 +87,7 @@ void main()
 	float d = length(pos);
     float alpha = getFogFactor(d);
 
-	vec4 FogColor = vec4(0.5,0.6,0.7, 1.0);
+	vec4 FogColor = vec4(0.7,0.6,0.7, 1.0);
 
     outColor = mix(vec4(colorP, 1.0), FogColor, alpha);
 
@@ -95,7 +96,7 @@ void main()
 
 vec3 shade(int i)
 {
-	vec3 color = Ia * Ka;
+	vec3 color =  vec3(0.1, 0.0, 0.0);
 
 	//Diffuse 
 	vec3 L = normalize (PosPoint[i] - pos);
@@ -173,4 +174,18 @@ vec3 direcShade(int i)
 	color += Ke;
 	
 	return color;
+}
+
+float GetAttenuationFactor(vec3 position)
+{
+	float result = 1.0;
+
+	float c1 = 1.0;
+	float c2 = 0.5;
+	float c3 = 0.05;
+
+	float dist = length(normalize(position));
+	result /= (c1 + c2*dist + c3*dist*dist);
+
+	return min(result, 1.0);
 }

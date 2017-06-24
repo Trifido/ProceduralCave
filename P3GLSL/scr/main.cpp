@@ -46,7 +46,9 @@ Mesh plant;
 
 //Variable cambio intensidad
 Light light1;
+Light lightGodRay;
 Light light2(DIRECTIONAL_LIGHT);
+Light *godLights;
 //Light light3(SPOT_LIGHT);
 
 float valorIntensidad = 0.5f;
@@ -169,20 +171,26 @@ void destroy(){
 
 void initObj()
 {
+	Vector *initsPoints = spline.GetInitScalePoints();
+	int numPointSpline = spline.GetNumInitPoints();
+	godLights = new Light[numPointSpline];
+
+	for (int i = 0; i < numPointSpline; i++)
+	{
+		godLights[i].SetIntensity(glm::vec3(0.4, 0.3, 0.3));
+		godLights[i].SetPosition(glm::vec3(initsPoints[i].x, 10.0f, initsPoints[i].z));
+		programaGodRay.AddLight(godLights[i]);
+		programa.AddLight(godLights[i]);
+		programaSuelo.AddLight(godLights[i]);
+		programa1.AddLight(godLights[i]);
+		programa2.AddLight(godLights[i]);
+	}
+
+
 	light2.SetIntensity(glm::vec3(1.0, 1.0, 1.0));
+	lightGodRay.SetIntensity(glm::vec3(1.0, 0.0, 0.0));
+	lightGodRay.SetPosition(glm::vec3(0.0f, 20.0f, 0.0f));
 	//light3.SetIntensity(glm::vec3(0.0, 0.0, 1.0));
-
-	programa.AddLight(light1);
-	programa.AddAmbientLight(scene1.getAmbientLight());
-
-	programaSuelo.AddLight(light1);
-	programaSuelo.AddAmbientLight(scene1.getAmbientLight());
-
-	programa1.AddLight(light1);
-	programa1.AddAmbientLight(scene1.getAmbientLight());
-
-	programa2.AddLight(light2);
-	programa2.AddAmbientLight(scene1.getAmbientLight());
 
 	programaCube.AddLight(light1);
 	programaCube.AddAmbientLight(scene1.getAmbientLight());
@@ -190,7 +198,6 @@ void initObj()
 	programaSky.AddLight(light1);
 	programaSky.AddAmbientLight(glm::vec3(1.0f));
 
-	programaGodRay.AddLight(light1);
 	programaGodRay.AddAmbientLight(scene1.getAmbientLight());
 
 	paredExterior.AddDisplacementShader(programa);
@@ -200,9 +207,7 @@ void initObj()
 	water.AddDisplacementShader(programa2);
 	plant.AddShader(programaCube);
 
-	int numPointSpline = spline.GetNumInitPoints();
 	godRay = new GodRay[numPointSpline];
-	Vector *initsPoints = spline.GetInitScalePoints();
 
 	for (int i = 0; i < numPointSpline; i++)
 		godRay[i].AddShader(programaGodRay);
