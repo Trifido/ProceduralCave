@@ -143,7 +143,7 @@ void initOGL(){
 	glPolygonMode(GL_FRONT, GL_FILL);
 	glDisable(GL_CULL_FACE);
 
-	camera.InitCamera(20.0f, 85.0f);
+	camera.InitCamera(20.0f, 75.0f);
 }
 
 void destroy(){

@@ -41,7 +41,7 @@ class Camera
 		//OTHER PARAMS
 		bool manual = true;
 		float timelapse = 0.0f;
-		float time = 0.5f;
+		float time = 1.0f;
 		Spline *path;
 
 	public:

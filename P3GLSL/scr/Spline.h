@@ -37,6 +37,7 @@ class Spline
 		Vector *scalePoints;
 		Vector *vectPathCoords;
 		std::vector<Vector> vectPathCamera;
+		std::vector<float> anglePathCamera;
 		Vector *vectPathScaleCoords;
 		float *pathCoords;
 		float factorScale;

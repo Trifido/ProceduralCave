@@ -94,6 +94,28 @@ Spline::Spline(float yCamera, float factorScale)
 		}
 	}
 
+	//for (int i = 0; i < totalPoints; i++)
+	//{
+	//	int iAnt = i - 1;
+	//	if (iAnt < 0) iAnt += totalPoints;
+
+	//	int iSig = i + 1;
+	//	iSig %= totalPoints;
+
+	//	Vector coordAnt = vectPathScaleCoords[iAnt];
+	//	Vector coord = vectPathScaleCoords[i];
+	//	Vector coordSig = vectPathScaleCoords[iSig];
+
+	//	Vector viewVector = Vector(coord.x - coordAnt.x, 0.0f, coord.z - coordAnt.z);
+	//	Vector nextView = Vector(coordSig.x - coord.x, 0.0f, coordSig.z - coord.z);
+
+	//	float dotProduct = viewVector.x * nextView.x + viewVector.y * nextView.y;
+	//	float determinant = viewVector.x * nextView.y + viewVector.y * nextView.x;
+	//	float angle = atan2(determinant, dotProduct);
+
+	//	anglePathCamera.push_back(angle);
+	//}
+
 	indice = 0;
 
 	//for (int sp = 0, indEj = 0; sp < 3; sp++, indEj++) {

@@ -106,28 +106,39 @@ void Camera::AnimateCamera()
 {
 	if (!manual)
 	{
-
 		timelapse = (int)timelapse % path->GetNumPathPoints();
 
 		float timelapseAnt = timelapse - time;
+		float timelapseSig = timelapse + time;
 
+		timelapseSig = (int)timelapseSig % path->GetNumPathPoints();
 		timelapseAnt = (int)timelapseAnt % path->GetNumPathPoints();
+
+		if (timelapseAnt < 0)
+			timelapseAnt += path->GetNumPathPoints();
 
 		Vector coordAnt = path->GetScaleCoord((int)(timelapseAnt));
 		Vector coord = path->GetScaleCoord((int)timelapse);
+		Vector coordSig = path->GetScaleCoord((int)timelapseSig);
 
-		glm::vec2 viewVector = glm::vec2(coordAnt.x - view[3].x, coordAnt.z - view[3].z);
-		glm::vec2 nextView = glm::vec2(coord.x - coordAnt.x, coord.z - coordAnt.z);
+		glm::vec2 viewVector = glm::vec2(coord.x - coordAnt.x, coord.z - coordAnt.z);
+		glm::vec2 nextView = glm::vec2(coordSig.x - coord.x, coordSig.z - coord.z);
 
 		float dotProduct = viewVector.x * nextView.x + viewVector.y * nextView.y;
-		float determinant = viewVector.x * nextView.y + viewVector.y * nextView.x;
+		float determinant = viewVector.x * nextView.y - viewVector.y * nextView.x;
 		float angle = atan2(determinant, dotProduct);
 
-		//this->view = glm::translate(this->view, glm::vec3(0.0f, 0.0f, 0.0f));
+		//this->view = glm::mat4(1.0f);
 
-		//this->view = glm::rotate(this->view, angle, glm::vec3(0.0, 1.0, 0.0));
+		this->view *= glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, 0.0f));
 
-		this->view = glm::translate(this->view, glm::vec3(coord.x, 0.0f, coord.z));
+		this->view *= glm::rotate(glm::mat4(1.0), -angle * 0.5f, glm::vec3(0.0, 1.0, 0.0));
+
+		this->view[3].x = coord.x;
+		this->view[3].y = -20.0f;
+		this->view[3].z = coord.z;
+
+		//this->view *= glm::translate(glm::mat4(1.0f), glm::vec3(coord.x, -20.0f, coord.z));
 
 		timelapse += time;
 	}
