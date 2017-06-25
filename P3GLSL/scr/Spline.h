@@ -64,6 +64,7 @@ class Spline
 		void TranslationZ(int id, float z);
 		void UpdateSpline();
 		void PrintfSpline();
+		int GetNumPathPoints();
 };
 
 #endif

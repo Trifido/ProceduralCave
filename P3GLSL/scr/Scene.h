@@ -66,6 +66,8 @@ public:
 	void ChangeTypeRender(unsigned char key);
 	//Change Paths
 	void ChangePaths(unsigned char key);
+	//Change camera mode
+	void ChangeCameraMode(unsigned char key);
 };
 
 #endif

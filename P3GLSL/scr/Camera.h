@@ -17,6 +17,7 @@ class Camera
 		glm::mat4 modelViewProj;
 		glm::mat4 normal;
 
+		//PINHOLE CAMERA
 		float rotation, rotationX;
 		float nearp = 1.0f;
 		float farp = 1000.0f;
@@ -25,7 +26,22 @@ class Camera
 		float focalDistance = -25.0f;
 		float maxDistanceFactor = 0.2f;
 
+		//OTHER CAMERA
+		//glm::vec3 postion = glm::vec3(0.0f, 0.0f, 0.0f);
+		//glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+		//glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
+		//glm::vec3 direction = glm::normalize(postion - target);
+		//glm::vec3 camRight = glm::normalize(glm::cross(up, direction));
+		//glm::vec3 camUp = glm::cross(direction, camRight);
+
+		//view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
+		//				   glm::vec3(0.0f, 0.0f, 0.0f),
+		//				   glm::vec3(0.0f, 1.0f, 0.0f));
+
+		//OTHER PARAMS
+		bool manual = true;
 		float timelapse = 0.0f;
+		float time = 0.5f;
 		Spline *path;
 
 	public:
@@ -59,6 +75,7 @@ class Camera
 		bool InitCamera(float yCamera, float factorScale);
 		void AnimateCamera();
 		void Translate(glm::vec3 cord);
+		void ChangeMode();
 		glm::vec3 GetPos();
 };
 

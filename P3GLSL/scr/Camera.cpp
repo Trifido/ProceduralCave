@@ -10,7 +10,9 @@ Camera::Camera()
 }
 
 void Camera::MoveCamera(unsigned char key) {
-	switch (key) {
+	if (manual)
+	{
+		switch (key) {
 		case 'w':
 			maxZView();
 			break;
@@ -35,14 +37,15 @@ void Camera::MoveCamera(unsigned char key) {
 		case 'f':
 			DecrementRotX();
 			break;
-	}
+		}
 
-	if (key == 'e' || key == 'q') {
-		RotateCamera();
-	}
-	
-	if(key == 'r' || key == 'f') {
-		RotateCameraX();
+		if (key == 'e' || key == 'q') {
+			RotateCamera();
+		}
+
+		if (key == 'r' || key == 'f') {
+			RotateCameraX();
+		}
 	}
 }
 
@@ -60,15 +63,19 @@ bool Camera::InitCamera(float yCamera, float factorScale)
 {
 	this->proj = glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, farp);
 	this->view = glm::mat4(1.0f);
-	this->view[3].z = -6.0f;
 
 	path = new Spline(yCamera, factorScale);
 
-	this->view[3].y = -20.0f;
-	this->view[3].x = path->GetInitScalePoints()[0].x;
-	this->view[3].z = path->GetInitScalePoints()[0].z;
-	//path->ScaleZPoints(offsetInside);
-	//path->ScaleXPoints(offsetInside);
+	this->view = glm::translate(this->view, glm::vec3(path->GetInitScalePoints()[0].x, -20.0f, path->GetInitScalePoints()[0].z));
+
+	glm::vec2 viewVector = glm::vec2(view[3].x, view[3].z);
+	glm::vec2 nextView = glm::vec2(path->GetInitScalePoints()[0].x - view[3].x, path->GetInitScalePoints()[0].z - view[3].z);
+
+	float dotProduct = viewVector.x * nextView.x + viewVector.y * nextView.y;
+	float  determinant = viewVector.x * nextView.y + viewVector.y * nextView.x;
+	float angle = atan2(determinant, dotProduct);
+
+	this->view = glm::rotate(this->view, angle, glm::vec3(0.0, 1.0, 0.0));
 
 	return true;
 }
@@ -97,12 +104,33 @@ Camera::~Camera() {}
 
 void Camera::AnimateCamera()
 {
-	Vector coord = path->GetScaleCoord((int)timelapse);
-	//printf("%f %f %f\n", coord.x, coord.y, coord.z);
-	view[3].z = coord.z;
-	view[3].x = coord.x;
-	timelapse += 0.1f;
-	//REPARAR GIRO DE CÁMARA CON LA SPLINE
+	if (!manual)
+	{
+
+		timelapse = (int)timelapse % path->GetNumPathPoints();
+
+		float timelapseAnt = timelapse - time;
+
+		timelapseAnt = (int)timelapseAnt % path->GetNumPathPoints();
+
+		Vector coordAnt = path->GetScaleCoord((int)(timelapseAnt));
+		Vector coord = path->GetScaleCoord((int)timelapse);
+
+		glm::vec2 viewVector = glm::vec2(coordAnt.x - view[3].x, coordAnt.z - view[3].z);
+		glm::vec2 nextView = glm::vec2(coord.x - coordAnt.x, coord.z - coordAnt.z);
+
+		float dotProduct = viewVector.x * nextView.x + viewVector.y * nextView.y;
+		float determinant = viewVector.x * nextView.y + viewVector.y * nextView.x;
+		float angle = atan2(determinant, dotProduct);
+
+		//this->view = glm::translate(this->view, glm::vec3(0.0f, 0.0f, 0.0f));
+
+		//this->view = glm::rotate(this->view, angle, glm::vec3(0.0, 1.0, 0.0));
+
+		this->view = glm::translate(this->view, glm::vec3(coord.x, 0.0f, coord.z));
+
+		timelapse += time;
+	}
 }
 
 void Camera::Translate(glm::vec3 cord)
@@ -113,4 +141,9 @@ void Camera::Translate(glm::vec3 cord)
 glm::vec3 Camera::GetPos()
 {
 	return glm::vec3(view[3].x, view[3].y, view[3].z);
+}
+
+void Camera::ChangeMode()
+{
+	(manual) ? manual = false : manual = true;
 }

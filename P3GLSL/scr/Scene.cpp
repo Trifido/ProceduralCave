@@ -57,7 +57,7 @@ void Scene::Animation(){
 		(*objects.at(i)).PathAnimation();
 	
 	//ANIMACION DE LA CÁMARA
-	//cameras.at(0)->AnimateCamera();
+	cameras.at(0)->AnimateCamera();
 }
 
 void Scene::Destroy()
@@ -212,4 +212,9 @@ void Scene::ChangePaths(unsigned char key)
 	{
 		antKey = key;
 	}
+}
+
+void Scene::ChangeCameraMode(unsigned char key) {
+	if (key == ' ')
+		cameras.at(0)->ChangeMode();
 }

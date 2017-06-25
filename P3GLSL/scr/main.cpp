@@ -143,7 +143,7 @@ void initOGL(){
 	glPolygonMode(GL_FRONT, GL_FILL);
 	glDisable(GL_CULL_FACE);
 
-	camera.InitCamera(20.0f, 55.0f);
+	camera.InitCamera(20.0f, 85.0f);
 }
 
 void destroy(){
@@ -288,6 +288,7 @@ void idleFunc()
 void keyboardFunc(unsigned char key, int x, int y){
 	camera.MoveCamera(key);
 	light1.LightController(key, camera);
+	scene1.ChangeCameraMode(key);
 	scene1.ChangePlaneMesh(key);
 	scene1.ChangeTypeRender(key);
 	scene1.ChangePaths(key);

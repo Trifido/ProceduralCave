@@ -2,7 +2,7 @@
 
 Spline::Spline()
 {
-	pointsPerCurve = 10;
+	pointsPerCurve = 70;
 	numCurves = 3;
 	numInitPoints = 6;
 	totalPoints = numCurves * pointsPerCurve;
@@ -44,7 +44,7 @@ Spline::Spline()
 
 Spline::Spline(float yCamera, float factorScale)
 {
-	pointsPerCurve = 10;
+	pointsPerCurve = 70;
 	numCurves = 3;
 	numInitPoints = 6;
 	totalPoints = numCurves * pointsPerCurve;
@@ -239,4 +239,8 @@ void Spline::PrintfSpline()
 			printf("%f, 0.0, %f\n", vectPathScaleCoords[indice].x, vectPathScaleCoords[indice].z);
 		}
 	}
+}
+
+int Spline::GetNumPathPoints() {
+	return totalPoints;
 }
