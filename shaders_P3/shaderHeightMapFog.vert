@@ -43,11 +43,13 @@ void main()
 	vec4 bumpData = texture2D( displacementMap, inTexCoord.xy );
 	float smoothBump = displacement1D[inTexCoordU];
 
-	float df = 0.30*bumpData.x + 0.59*(bumpData.y*0.7 + smoothBump*0.3) + 0.11*bumpData.z;
+	float df = 0.30*bumpData.x + 0.59*(bumpData.x*0.7 + smoothBump*0.3) + 0.11*bumpData.x;
+	//float df = 0.30*bumpData.x + 0.59*(bumpData.x*0.7) + 0.11*bumpData.x;
 
 	//float df = smoothBump;
 
 	newVertexPos = vec4(inPos + inNormal * df * scalingFactor, 1.0);
+	//newVertexPos = vec4(inPos, 1.0);
 
 	if(newVertexPos.y < 1.5)
 		lightPointColor = vec3(0.0, 1.0, 0.0);

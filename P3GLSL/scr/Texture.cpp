@@ -24,6 +24,13 @@ Texture::Texture(char *filename1, char *filename2, char *filename3, char *filena
 	type = CUBEMAP_TEXTURE;
 }
 
+void Texture::Load(unsigned char *map, int h, int w)
+{
+	mymap = map;
+	myh = h;
+	myw = w;
+}
+
 void Texture::LoadTexture()
 {
 	unsigned char *map;
@@ -95,6 +102,33 @@ void Texture::LoadTexture()
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 	}
+}
+
+void Texture::LoadPerlinTexture()
+{
+	if (!mymap)
+	{
+		std::cout << "Error cargando el fichero: "
+			<< name << std::endl;
+		exit(-1);
+	}
+
+	glGenTextures(1, &this->id);
+	glBindTexture(GL_TEXTURE_2D, this->id);
+	//Tipo de textura a modificar, numero de midmap, formato de canal interno de la tarjeta grÃ¡fica, ancho, alto, borde, los canales de los datos que le voy a pasar,
+	//tipo de canal, puntero a los datos.
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R8, myw, myh, 0, GL_RED, GL_UNSIGNED_BYTE, (GLvoid*)mymap);
+
+	//Generar el Mipmap
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	//Indicar el acceso a la textura
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 }
 
 void Texture::Destroy()

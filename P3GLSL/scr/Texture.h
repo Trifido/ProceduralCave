@@ -20,6 +20,8 @@ class Texture
 		TypeTexture type;
 		char *name;
 		std::vector <char*> arrayName;
+		unsigned char *mymap;
+		int myh, myw;
 	public:
 		Texture(){};
 		Texture(char *filename);
@@ -31,6 +33,9 @@ class Texture
 		bool load_cube_map_side(GLuint texture, GLenum side_target, const char* file_name);
 		inline unsigned int GetId(){ return this->id; }
 		void Destroy();
+
+		void Texture::Load(unsigned char *map, int h, int w);
+		void LoadPerlinTexture();
 
 		inline ~Texture() { Destroy(); }
 };

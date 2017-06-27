@@ -1,6 +1,9 @@
 #ifndef _MESH_H
 #define _MESH_H
 
+#define tamTex 256
+#define numBollos 6
+
 #include "BOX.h"
 #include "GLSLProgram.h"
 #include "Texture.h"
@@ -167,6 +170,9 @@ public:
 
 		inline void ChangeScalingFactor(float data) { *scalingFactor += data; }
 		inline float GetScalingFactor() { return *scalingFactor; }
+
+		void createPerlinNoise();
+		void createWorleyNoise();
 
 		bool isCurvedPlane() { return isCurvePlane; }
 		void UpdateMesh();

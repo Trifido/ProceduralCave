@@ -114,7 +114,7 @@ void main()
 		outColor = vec4(0.0, 1.0, 0.7, 1.0);
 	}
 
-	if(newVertexPos.y < 45)
+	if(newVertexPos.y < 46)
 		outColor.w = 1.0;
 	else
 		outColor.w = 0.0;

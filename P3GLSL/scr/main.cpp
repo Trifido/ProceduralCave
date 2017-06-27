@@ -20,6 +20,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
+#include<time.h>
 
 
 //////////////////////////////////////////////////////////////
@@ -74,6 +75,7 @@ void destroy();
 
 int main(int argc, char** argv)
 {
+	srand(time(NULL));
 	std::locale::global(std::locale("spanish"));// acentos ;)
 
 	initContext(argc, argv);

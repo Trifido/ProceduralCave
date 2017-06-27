@@ -35,7 +35,7 @@ void main()
 
 	//float df = 0.30*bumpData.x + 0.59*bumpData.y + 0.11*bumpData.z;
 
-	vec4 newVertexPos = vec4(inPos + inNormal * bumpData.y * scalingFactor, 1.0); 
+	vec4 newVertexPos = vec4(inPos + inNormal * bumpData.x * scalingFactor, 1.0); 
 	
 	gl_Position = modelViewProj * newVertexPos;
 

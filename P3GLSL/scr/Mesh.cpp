@@ -1,4 +1,17 @@
 #include "Mesh.h"
+#include<time.h>
+
+using std::vector;
+
+vector<vector<float>> GenerateWhiteNoise(int width, int height);
+vector<vector<float>> GenerateSmoothNoise(vector<vector<float>> baseNoise, int octave);
+float Interpolate(float x0, float x1, float alpha);
+vector<vector<float>> GeneratePerlinNoise(vector<vector<float>> baseNoise, int octaveCount);
+unsigned char *MapGradient(vector<vector<float>> perlinNoise);
+
+float noise(Vector input, Vector points[], int size, float *maxDist, float *minDist);
+float euclidian_distance(Vector p1, Vector p2);
+float WrapDist(Vector pixel, Vector point);
 
 Mesh::Mesh()
 {
@@ -55,12 +68,14 @@ Mesh::Mesh(char *nameTex1, char *nameTex2, bool imported)
 
 Mesh::Mesh(char *nameTex1, char *nameTex2, char *nameTex3)
 {
+	//srand(time(NULL));
 	typeMesh = DISPLACEMENT_MESH;
 	colorTex = Texture(nameTex1);
 	colorTex2 = Texture("../img/colorTexture2.jpg");
 	colorTex3 = Texture("../img/noiseEmisiveLight.jpg");
 	specularTex = Texture(nameTex2);
-	displacementMap = Texture(nameTex3);
+	createWorleyNoise();
+	//displacementMap = Texture(nameTex3);
 	scalingFactor = new float;
 	/*emiTex = NULL;
 	normalTex = NULL;*/
@@ -88,6 +103,239 @@ Mesh::Mesh(char *nameTex1, char *nameTex2, char *nameTex3, char *nameTex4)
 
 	path = new Spline();
 	timelapse = 0.0f;
+}
+
+void Mesh::createPerlinNoise() {
+	//Perlin Noise
+	vector<vector<float>> whiteNoise;
+	vector<vector<float>> perlinNoise;
+
+	whiteNoise.resize(tamTex);
+	for (int i = 0; i < tamTex; i++)
+		whiteNoise[i].resize(tamTex);
+	whiteNoise = GenerateWhiteNoise(tamTex, tamTex);
+	perlinNoise = GeneratePerlinNoise(whiteNoise, 8);
+
+	/*for (int i = 0; i < tamTex; i++)
+	for (int j = 0; j < tamTex; j++)
+	printf("Valores obtenidos: %i %i = %f\n", i, j, perlinNoise[i][j]);*/
+
+	unsigned char *PerlinTex = MapGradient(perlinNoise);
+
+	Texture perlinTex;
+	perlinTex.Load(PerlinTex, tamTex, tamTex);
+
+	displacementMap = perlinTex;
+}
+
+vector<vector<float>> GenerateWhiteNoise(int width, int height) {
+	vector<vector<float>> noise;
+
+	noise.resize(height);
+//	srand(time(NULL));
+	for (int i = 0; i < height; i++)
+	{
+		noise[i].resize(width);
+		for (int j = 0; j < width; j++)
+		{
+			noise[i][j] = ((double)rand() / (RAND_MAX));
+		}
+	}
+
+	return noise;
+}
+
+vector<vector<float>> GenerateSmoothNoise(vector<vector<float>> baseNoise, int octave) {
+	int height = baseNoise.size();
+	int width = baseNoise[0].size();
+
+	vector<vector<float>> smoothNoise;
+
+	smoothNoise.resize(height);
+
+	int samplePeriod = pow(2, octave); // calculates 2 ^ k
+	float sampleFrequency = 1.0f / samplePeriod;
+
+	for (int i = 0; i < height; i++)
+	{
+		smoothNoise[i].resize(width);
+		//calculate the horizontal sampling indices
+		int sample_i0 = (i / samplePeriod) * samplePeriod;
+		int sample_i1 = (sample_i0 + samplePeriod) % height; //wrap around
+		float horizontal_blend = (i - sample_i0) * sampleFrequency;
+
+		for (int j = 0; j < width; j++)
+		{
+			//calculate the vertical sampling indices
+			int sample_j0 = (j / samplePeriod) * samplePeriod;
+			int sample_j1 = (sample_j0 + samplePeriod) % width; //wrap around
+			float vertical_blend = (j - sample_j0) * sampleFrequency;
+
+			//blend the top two corners
+			float top = Interpolate(baseNoise[sample_i0][sample_j0],
+				baseNoise[sample_i1][sample_j0], horizontal_blend);
+
+			//blend the bottom two corners
+			float bottom = Interpolate(baseNoise[sample_i0][sample_j1],
+				baseNoise[sample_i1][sample_j1], horizontal_blend);
+
+			//final blend
+			smoothNoise[i][j] = Interpolate(top, bottom, vertical_blend);
+		}
+	}
+
+	return smoothNoise;
+}
+
+float Interpolate(float x0, float x1, float alpha) {
+	return x0 * (1 - alpha) + alpha * x1;
+}
+
+vector<vector<float>> GeneratePerlinNoise(vector<vector<float>> baseNoise, int octaveCount) {
+	int width = baseNoise.size();
+	int height = baseNoise[0].size();
+
+	vector<vector<vector<float>>> smoothNoise; //an array of 2D arrays containing
+	smoothNoise.resize(octaveCount);
+
+	float persistance = 0.5f;
+
+	//generate smooth noise
+	for (int i = 0; i < octaveCount; i++)
+	{
+		smoothNoise[i] = GenerateSmoothNoise(baseNoise, i);
+	}
+
+	vector<vector<float>> perlinNoise;
+	perlinNoise.resize(height);
+
+	float amplitude = 1.0f;
+	float totalAmplitude = 0.0f;
+
+	//blend noise together
+	for (int octave = octaveCount - 1; octave >= 0; octave--)
+	{
+		amplitude *= persistance;
+		totalAmplitude += amplitude;
+
+		for (int i = 0; i < height; i++)
+		{
+			perlinNoise[i].resize(width);
+			for (int j = 0; j < width; j++)
+			{
+				perlinNoise[i][j] += smoothNoise[octave][i][j] * amplitude;
+			}
+		}
+	}
+
+	//normalization
+	for (int i = 0; i < height; i++)
+	{
+		for (int j = 0; j < width; j++)
+		{
+			perlinNoise[i][j] /= totalAmplitude;
+		}
+	}
+
+	return perlinNoise;
+}
+
+unsigned char* MapGradient(vector<vector<float>> perlinNoise)
+{
+	int width = perlinNoise.size();
+	int height = perlinNoise[0].size();
+
+	unsigned char *image = new unsigned char[height * width];
+
+	for (int i = 0; i < height; i++)
+	{
+		for (int j = 0; j < width; j++)
+		{
+			image[i * height + j] = (unsigned char)(perlinNoise[i][j] * 255);
+		}
+	}
+
+	return image;
+}
+
+
+void Mesh::createWorleyNoise() {
+	//Worley Noise
+	Vector points[numBollos];
+	srand(time(NULL));
+
+	for (int i = 0; i < numBollos; i++) {
+		points[i].x = rand() % tamTex;
+		points[i].y = rand() % tamTex;
+		points[i].z = rand() % tamTex;
+	}
+
+	vector<vector<float>> distBuffer;
+	vector<vector<float>> worleyNoise;
+
+	distBuffer.resize(tamTex);
+	for (int i = 0; i < tamTex; i++)
+		distBuffer[i].resize(tamTex);
+
+	worleyNoise.resize(tamTex);
+	for (int i = 0; i < tamTex; i++)
+		worleyNoise[i].resize(tamTex);
+
+	float maxDist = 0, minDist = INFINITY;
+
+	for (unsigned int i = 0; i < tamTex; i++) {
+		for (unsigned int j = 0; j < tamTex; j++) {
+			float value = noise(Vector(i, j, 0), points, numBollos, &maxDist, &minDist);
+			distBuffer[i][j] = value;
+		}
+	}
+
+	for (unsigned int i = 0; i < tamTex; i++) {
+		for (unsigned int j = 0; j < tamTex; j++) {
+			worleyNoise[i][j] = (distBuffer[i][j] - minDist) / (maxDist - minDist);
+		}
+	}
+
+	unsigned char *WorleyTex = MapGradient(worleyNoise);
+
+	Texture worleyTex;
+	worleyTex.Load(WorleyTex, tamTex, tamTex);
+
+	displacementMap = worleyTex;
+}
+
+float noise(Vector input, Vector points[], int size, float *maxDist, float *minDist) {
+	float min = INFINITY;
+
+	for (unsigned int i = 0; i < size; ++i) {
+		//float dist = euclidian_distance(input, points[i]);
+		float dist = WrapDist(input, points[i]);
+
+		if (dist < min && dist != 0.0f) min = dist;
+	}
+
+	if (min < *minDist) *minDist = min;
+	if (min > *maxDist) *maxDist = min;
+	return min;
+}
+
+float euclidian_distance(Vector p1, Vector p2) {
+	return sqrtf(pow(p2.x - p1.x, 2) + pow(p2.y - p1.y, 2));
+}
+
+float WrapDist(Vector pixel, Vector point) {
+	/*if (pixel.x < 6 || pixel.x > 250 || pixel.y < 6 || pixel.y > 250)
+		return 0.0f;*/
+
+	float dx = abs(pixel.x - point.x);
+	float dy = abs(pixel.y - point.y);
+
+	if (dx > tamTex / 2)
+		dx = tamTex - dx;
+	if (dy > tamTex / 2)
+		dy = tamTex - dy;
+
+	return sqrt(dx*dx + dy*dy);
 }
 
 void Mesh::InitRender(Camera &camera)
@@ -436,7 +684,7 @@ void Mesh::InitPlaneMesh(int numVertX, int numVertY, float disp, float scaleFact
 	colorTex3.LoadTexture();
 	colorTex.LoadTexture();
 	specularTex.LoadTexture();
-	displacementMap.LoadTexture();
+	displacementMap.LoadPerlinTexture();
 
 	model = glm::mat4(1.0f);
 }
@@ -491,7 +739,7 @@ void Mesh::InitPlane(float width, float height, float disp, float scaleFactor, b
 	}
 
 	specularTex.LoadTexture();
-	displacementMap.LoadTexture();
+	displacementMap.LoadPerlinTexture();
 
 	model = glm::mat4(1.0f);
 }
@@ -775,12 +1023,17 @@ void Mesh::GenerateCurvedPlane(int width, int height, float tiling, float densit
 
 	int indCurve = 0;
 	int ind = 0;
+	int indini = 0;
+	int indini1 = 0;
 	for (int w = 0; w < width; w++)
 	{
 		if (m >= 1.0f) {
 			m = 0.0f;
 			indCurve++;
 		}
+
+		/*if (w == width - 1)
+			indCurve = 0;*/
 
 		Vector coord = path->CalculateNewCoords(m, indCurve);
 		Vector initialCoord = path->CalculateInitialCoord(m, indCurve);
@@ -791,9 +1044,28 @@ void Mesh::GenerateCurvedPlane(int width, int height, float tiling, float densit
 
 		for (int h = 0; h < height; h++, ind += 3)
 		{
-			vertexArray[ind] = coord.x; // (w)* density;
-			vertexArray[ind + 1] = float(h) * density; //float(h) * density; 
-			vertexArray[ind + 2] =  coord.z;
+			//if (w == width - 1 && h == 0) 
+			//	indini = ind;
+			//else if (h == 1)
+			//	indini1 = ind;
+
+			//if (w == width - 1 && h == height - 2) {
+			//	vertexArray[ind] = vertexArray[indini]; // (w)* density;
+			//	vertexArray[ind + 1] = vertexArray[indini + 1]; //float(h) * density; 
+			//	vertexArray[ind + 2] = vertexArray[indini + 2];
+			//}
+			//else
+			//if (w == width - 1 && h == height - 1) {
+			//	vertexArray[ind] = vertexArray[indini]; // (w)* density;
+			//	vertexArray[ind + 1] = vertexArray[indini + 1]; //float(h) * density; 
+			//	vertexArray[ind + 2] = vertexArray[indini + 2];
+			//}
+			//else {
+				vertexArray[ind] = coord.x; // (w)* density;
+				vertexArray[ind + 1] = float(h) * density; //float(h) * density; 
+				vertexArray[ind + 2] =  coord.z;
+			//}
+			
 
 			if (!invert)
 			{
@@ -916,7 +1188,8 @@ void Mesh::GenerateWater(char *nameTex1, char *nameTex2, char *nameTex3, float s
 	colorTex = Texture(nameTex1);
 	specularTex = Texture(nameTex2);
 	displacementMap = Texture();
-	displacementMap.WaterTexture(nameTex3);
+	createPerlinNoise();
+	//displacementMap.WaterTexture(nameTex3);
 	scalingFactor = new float;
 
 	*scalingFactor = scale;

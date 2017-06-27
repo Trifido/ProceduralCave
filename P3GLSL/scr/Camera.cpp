@@ -132,7 +132,7 @@ void Camera::AnimateCamera()
 
 		this->view *= glm::translate(glm::mat4(1.0), glm::vec3(0.0f, 0.0f, 0.0f));
 
-		this->view *= glm::rotate(glm::mat4(1.0), -angle * 0.5f, glm::vec3(0.0, 1.0, 0.0));
+		//this->view *= glm::rotate(glm::mat4(1.0), -angle * 0.5f, glm::vec3(0.0, 1.0, 0.0));
 
 		this->view[3].x = coord.x;
 		this->view[3].y = -20.0f;

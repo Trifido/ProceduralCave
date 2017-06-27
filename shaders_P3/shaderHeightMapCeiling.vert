@@ -32,14 +32,9 @@ void main()
 	
 	vec4 bumpData = texture2D( displacementMap, inTexCoord.xy );	
 
-	float df = 0.30*bumpData.x + 0.59*bumpData.y + 0.11*bumpData.z;
+	float df = 1.0*bumpData.x;// 0.30*bumpData.x +  0.11*bumpData.z;
 
 	newVertexPos = vec4(inPos + inNormal * df * scalingFactor, 1.0);
-
-	if(newVertexPos.y < 45)
-		color.w = 1.0;
-	else
-		color.w = 0.0;
 	
 	gl_Position = modelViewProj * newVertexPos;
 
