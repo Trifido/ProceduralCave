@@ -50,6 +50,8 @@
     <None Include="..\shaders_P3\shaderHeightMapCeiling.vert" />
     <None Include="..\shaders_P3\shaderHeightMapFog.frag" />
     <None Include="..\shaders_P3\shaderHeightMapFog.vert" />
+    <None Include="..\shaders_P3\shaderHeightMapFogFloor.frag" />
+    <None Include="..\shaders_P3\shaderHeightMapFogFloor.vert" />
     <None Include="..\shaders_P3\shaderPlant.frag" />
     <None Include="..\shaders_P3\shaderPlant.vert" />
     <None Include="..\shaders_P3\skyboxShader.frag" />

@@ -697,7 +697,6 @@ void Mesh::InitPlane(float width, float height, float disp, float scaleFactor, b
 		*scalingFactor = scaleFactor * 13.0f;
 	else
 		*scalingFactor = scaleFactor * 16.0f;
-	//(scaleFactor + 0.01f) * 4.0f;
 
 	//Creo el VAO
 	glGenVertexArrays(1, &vao);
@@ -786,16 +785,10 @@ void Mesh::InitSky()
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
-
 	if ((*programa).getPos() != -1)
 	{
 		LoadVBO(posVBO, cubeNVertex * sizeof(float) * 3, cubeVertexPos, 3, (*programa).getPos());
 	}
-
-	//if ((*programa).getTexCoord() != -1)
-	//{
-	//	LoadVBO(texCoordVBO, cubeNVertex * sizeof(float) * 2, cubeVertexTexCoord, 2, (*programa).getTexCoord());
-	//}
 
 	LoadIBO(triangleIndexVBO, cubeNTriangleIndex * sizeof(unsigned int) * 3, cubeTriangleInvertIndex);
 
@@ -1011,7 +1004,6 @@ void Mesh::GenerateCurvedPlane(int width, int height, float tiling, float densit
 
 	arrayIndex = new unsigned int[tamW * tamH * 2 * 3];
 
-	//----------------------------------------------------------------------------------------------
 	path->ScaleZPoints(offsetInside);
 	path->ScaleXPoints(offsetInside);
 
@@ -1032,9 +1024,6 @@ void Mesh::GenerateCurvedPlane(int width, int height, float tiling, float densit
 			indCurve++;
 		}
 
-		/*if (w == width - 1)
-			indCurve = 0;*/
-
 		Vector coord = path->CalculateNewCoords(m, indCurve);
 		Vector initialCoord = path->CalculateInitialCoord(m, indCurve);
 		Vector normal = Vector(coord.x - initialCoord.x, 0.0f, coord.z - initialCoord.z);
@@ -1044,28 +1033,9 @@ void Mesh::GenerateCurvedPlane(int width, int height, float tiling, float densit
 
 		for (int h = 0; h < height; h++, ind += 3)
 		{
-			//if (w == width - 1 && h == 0) 
-			//	indini = ind;
-			//else if (h == 1)
-			//	indini1 = ind;
-
-			//if (w == width - 1 && h == height - 2) {
-			//	vertexArray[ind] = vertexArray[indini]; // (w)* density;
-			//	vertexArray[ind + 1] = vertexArray[indini + 1]; //float(h) * density; 
-			//	vertexArray[ind + 2] = vertexArray[indini + 2];
-			//}
-			//else
-			//if (w == width - 1 && h == height - 1) {
-			//	vertexArray[ind] = vertexArray[indini]; // (w)* density;
-			//	vertexArray[ind + 1] = vertexArray[indini + 1]; //float(h) * density; 
-			//	vertexArray[ind + 2] = vertexArray[indini + 2];
-			//}
-			//else {
-				vertexArray[ind] = coord.x; // (w)* density;
-				vertexArray[ind + 1] = float(h) * density; //float(h) * density; 
-				vertexArray[ind + 2] =  coord.z;
-			//}
-			
+			vertexArray[ind] = coord.x; // (w)* density;
+			vertexArray[ind + 1] = float(h) * density; //float(h) * density; 
+			vertexArray[ind + 2] =  coord.z;
 
 			if (!invert)
 			{
@@ -1549,8 +1519,8 @@ void Mesh::InitPlanePlant(float width, float height, float disp, float scaleFact
 
 void Mesh::CreateColorVertex(int width, int height)
 {
-	float r1 = 0.0f / 255.0f;
-	float r2 = 120.0f / 255.0f;
+	float r1 = 255.0f / 255.0f;
+	float r2 = 0.0f / 255.0f;
 	float r3 = 0.0f / 255.0f;
 	bool rchange = false;
 	colorVertex = new float[width * height];

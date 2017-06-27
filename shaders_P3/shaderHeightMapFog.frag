@@ -73,8 +73,8 @@ float getFogFactor(float d)
 
 void main()
 {
-	//Ka = texture(colorTex, texCoord).rgb;
-	Ka = color;
+	Ka = texture(colorTex, texCoord).rgb;
+	Ka += color;
 	Kd = Ka;
 	Ke = texture(emiTex, texCoord).rgb;
 	Ke2 = texture(colorTex2, texCoord).rgb;

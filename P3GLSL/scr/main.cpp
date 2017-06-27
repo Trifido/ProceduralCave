@@ -81,7 +81,7 @@ int main(int argc, char** argv)
 	initContext(argc, argv);
 	initOGL();
 	programa.InitShader("../shaders_P3/shaderHeightMapFog.vert", "../shaders_P3/shaderHeightMapFog.frag");
-	programaSuelo.InitShader("../shaders_P3/shaderHeightMapFog.vert", "../shaders_P3/shaderHeightMapFog.frag");
+	programaSuelo.InitShader("../shaders_P3/shaderHeightMapFogFloor.vert", "../shaders_P3/shaderHeightMapFogFloor.frag");
 	programa1.InitShader("../shaders_P3/shaderHeightMapCeiling.vert", "../shaders_P3/shaderHeightMapCeiling.frag");
 	programa2.InitShader("../shaders_P3/waterShader.vert", "../shaders_P3/waterShader.frag");
 	programa3.InitShader("../shaders_P3/skyboxShader.vert", "../shaders_P3/skyboxShader.frag");
@@ -234,9 +234,9 @@ void initObj()
 
 	skyBox.AddShader(programa3);
 		
-	paredExterior.InitPlaneMesh(1000, 500, 0.40f, 0.5f, 0.1f, 100.0f, false, true, 1.0f);
-	paredInterior.InitPlaneMesh(500, 500, 0.40f, 0.5f, 0.1f, 50.0f, true, true, 1.0f);
-	suelo.InitPlane(500, 500, 1.0f, 1.0f, false, 2.0f);
+	paredExterior.InitPlaneMesh(2000, 2000, 0.40f, 0.5f, 0.1f, 100.0f, false, true, 4.0f);
+	paredInterior.InitPlaneMesh(2000, 2000, 0.40f, 0.5f, 0.1f, 50.0f, true, true, 4.0f);
+	suelo.InitPlane(500, 500, 1.0f, 1.0f, false, 6.0f);
 	techo.InitPlane(500, 500, 1.0f, 1.0f, true, 6.0f);
 
 	water.GenerateWater("../img/blueWater.jpg", "../img/bump.png", "../img/perlin.jpg", 40.0f);
