@@ -4,6 +4,14 @@
 #include <iostream>
 #include <vector>
 
+//La spline es de tipo Catmull-Room siguiendo el codigo que se daba.
+//Se presentan distintos vectores, para controlar los puntos de control, puntos internos en las curvas,
+// puntos escalados.
+
+//Se ha hardcodeado los puntos de control debido a que en la implementacion de la arquitectura, al querer 
+//modificar la misma para permitir que un objeto Spline sea el mismo para las distintas mallas, tenemos problemas
+//con los puntos escalados, esto ha sido más una cuestión de tiempo y hemos querido dejarlo con el menor numero de bugs posible.
+
 class Vector
 {
 public:
@@ -22,8 +30,6 @@ public:
 		this->z /= mod;
 	}
 };
-
-
 
 class Spline
 {

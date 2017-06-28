@@ -59,6 +59,7 @@ void Camera::RotateCameraX()
 	this->view = glm::rotate(glm::mat4(1.0f), rotationX, glm::vec3(1, 0, 0)) * this->view;
 }
 
+//La cámara se inicializa con una spline que es el camino que va a seguir la cámara
 bool Camera::InitCamera(float yCamera, float factorScale)
 {
 	this->proj = glm::perspective(glm::radians(60.0f), 1.0f, 0.1f, farp);
@@ -102,6 +103,9 @@ void Camera::SetNormal(glm::mat4 norm)
 
 Camera::~Camera() {}
 
+//Para la animación de la cámara hemos intentado que siga la tangente en cada punto
+//calculando el ángulo que forman los dos vectores (t-1, t y t+1), aun así no hemos
+//podido sacar el ángulo y hemos dejado que solo siga el recorrido.
 void Camera::AnimateCamera()
 {
 	if (!manual)

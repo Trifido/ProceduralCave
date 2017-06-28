@@ -10,6 +10,7 @@
 #include "Light.h"
 #include "Camera.h"
 
+//La escena presenta contiene los distintos objetos necesarios para el renderizado de la misma
 class Scene 
 {
 public:

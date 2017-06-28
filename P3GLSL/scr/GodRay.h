@@ -10,6 +10,9 @@
 
 #include <vector>
 
+//Los GodRay's son impostors, los he creado con 4 planos que intersectan por sus centros de manera
+//que busco que tengan mayor 'volumen'
+
 class GodRay
 {
 private:

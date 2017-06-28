@@ -13,13 +13,11 @@ float noise(Vector input, Vector points[], int size, float *maxDist, float *minD
 float euclidian_distance(Vector p1, Vector p2);
 float WrapDist(Vector pixel, Vector point);
 
+//Constructor por defecto
 Mesh::Mesh()
 {
-	colorTex = Texture("../img/transparent.png"); //../img/color.png
-	emiTex = Texture("../img/godRay1.jpg");//../img/emissive.png
-	//specularTex = Texture("../img/specMap.png");
-	//normalTex = Texture("../img/normal.png");
-
+	colorTex = Texture("../img/transparent.png");
+	emiTex = Texture("../img/godRay1.jpg");
 	path = new Spline();
 	timelapse = 0.0f;
 	scalingFactor = new float;
@@ -27,6 +25,7 @@ Mesh::Mesh()
 	typeMesh = HOLE_MESH;
 }
 
+//Constructor usado para el cube map
 Mesh::Mesh(bool option)
 {
 	path = new Spline();
@@ -39,6 +38,7 @@ Mesh::Mesh(bool option)
 		"../img/skybox/back.jpg", "../img/skybox/front.jpg");
 }
 
+//Constructor para los godrays
 Mesh::Mesh(char *nameTex1)
 {
 	colorTex = Texture("../img/transparent.png");
@@ -53,7 +53,7 @@ Mesh::Mesh(char *nameTex1)
 
 Mesh::Mesh(char *nameTex1, char *nameTex2, bool imported)
 {
-	if(imported)
+	if (imported)
 		typeMesh = IMPORT_MESH;
 	else
 		typeMesh = DISPLACEMENT_MESH;
@@ -66,6 +66,7 @@ Mesh::Mesh(char *nameTex1, char *nameTex2, bool imported)
 	timelapse = 0.0f;
 }
 
+//Constructor inicial para paredes, suelo y techo.
 Mesh::Mesh(char *nameTex1, char *nameTex2, char *nameTex3)
 {
 	//srand(time(NULL));
@@ -74,11 +75,11 @@ Mesh::Mesh(char *nameTex1, char *nameTex2, char *nameTex3)
 	colorTex2 = Texture("../img/colorTexture2.jpg");
 	colorTex3 = Texture("../img/noiseEmisiveLight.jpg");
 	specularTex = Texture(nameTex2);
+	//Usamos el ruido celular
 	createWorleyNoise();
 	//displacementMap = Texture(nameTex3);
 	scalingFactor = new float;
-	/*emiTex = NULL;
-	normalTex = NULL;*/
+
 	path = new Spline();
 	timelapse = 0.0f;
 
@@ -132,7 +133,7 @@ vector<vector<float>> GenerateWhiteNoise(int width, int height) {
 	vector<vector<float>> noise;
 
 	noise.resize(height);
-//	srand(time(NULL));
+	//	srand(time(NULL));
 	for (int i = 0; i < height; i++)
 	{
 		noise[i].resize(width);
@@ -325,7 +326,7 @@ float euclidian_distance(Vector p1, Vector p2) {
 
 float WrapDist(Vector pixel, Vector point) {
 	/*if (pixel.x < 6 || pixel.x > 250 || pixel.y < 6 || pixel.y > 250)
-		return 0.0f;*/
+	return 0.0f;*/
 
 	float dx = abs(pixel.x - point.x);
 	float dy = abs(pixel.y - point.y);
@@ -338,6 +339,8 @@ float WrapDist(Vector pixel, Vector point) {
 	return sqrt(dx*dx + dy*dy);
 }
 
+//COnfiguración de uniforms para poder renderizar
+//dependiendo del tipo de mesh se presenta una configuración diferente
 void Mesh::InitRender(Camera &camera)
 {
 	if (typeRender == SKYBOX_MESH)
@@ -351,7 +354,7 @@ void Mesh::InitRender(Camera &camera)
 	{
 		(*programa).EnableBlending();
 	}
-	
+
 	if (typeMesh == SKYBOX_MESH)
 	{
 		camera.SetModelViewProj(camera.GetProj() * camera.GetView() * model);
@@ -394,6 +397,8 @@ void Mesh::InitRender(Camera &camera)
 		(*programa).AddUnifLight();
 }
 
+//Método de Renderizado, según el tipo se renderiza de manera diferente,
+//por ejemplo para los godrays o el agua necesitamos desabilitar el blending al finalizar el render de los mismos.
 void Mesh::Render()
 {
 	//Activamos el VAO del objeto, activandose todos los VBO 
@@ -404,7 +409,6 @@ void Mesh::Render()
 		if (typeMesh == SKYBOX_MESH)
 		{
 			glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, (void*)0);
-			//glDrawArrays(GL_TRIANGLES, 0, 36);
 			glDepthMask(GL_TRUE);
 		}
 		else
@@ -431,9 +435,9 @@ void Mesh::Render()
 	{
 		(*programa).DisableBlending();
 	}
-	
+
 	glBindVertexArray(0);
-		
+
 	glUseProgram(NULL);
 }
 
@@ -441,6 +445,7 @@ void Mesh::SetTypeRender(TypeRender type)
 {
 	this->typeRender = type;
 }
+
 
 void Mesh::LoadVBO(unsigned int &VBO, int dataSize, const float *vertexArray, GLint size, int idAtrib)
 {
@@ -508,6 +513,7 @@ void Mesh::Orbit(float &internAngle, float &externAngle, glm::vec3 externRadius)
 	Rotate(externAngle, glm::vec3(0, 1.0f, 0));
 }
 
+//Actualizamos el timelase para animaciones de posibles meshes
 void Mesh::PathAnimation()
 {
 	if (typeMesh == DEFAULT_MESH || typeMesh == IMPORT_MESH)
@@ -522,7 +528,7 @@ void Mesh::PathAnimation()
 		timelapse += 0.0001f;
 }
 
-void Mesh::Destroy(GLSLProgram &programa) 
+void Mesh::Destroy(GLSLProgram &programa)
 {
 	//Borramos los distintos buffers anteriormente creados
 	if (programa.getPos() != -1) glDeleteBuffers(1, &posVBO);
@@ -556,11 +562,12 @@ Mesh::~Mesh()
 	glDeleteBuffers(1, &texCoordUVBO);
 	glDeleteBuffers(1, &texCoordVVBO);
 
-		//Destroy(programa);
+	//Destroy(programa);
 
 	glDeleteBuffers(1, &triangleIndexVBO);
 }
 
+//Método para generar los VBO's de un cubo por defecto
 void Mesh::InitDefaultMesh() {
 	//Creo el VAO
 	glGenVertexArrays(1, &vao);
@@ -591,14 +598,13 @@ void Mesh::InitDefaultMesh() {
 
 	colorTex.LoadTexture();
 	emiTex.LoadTexture();
-	//specularTex.LoadTexture();
-	//normalTex.LoadTexture();
 
 	numFaces = cubeNTriangleIndex;
 
 	model = glm::mat4(1.0f);
 }
 
+//Método para generar los VBO de mallas importadas de assimp
 void Mesh::InitMesh(const std::string &pFile) {
 	ImportMesh(pFile);
 	//Creo el VAO
@@ -634,6 +640,7 @@ void Mesh::InitMesh(const std::string &pFile) {
 	model = glm::mat4(1.0f);
 }
 
+//Método para generar los VBO's de planos que se curvan siguiendo la spline
 void Mesh::InitPlaneMesh(int numVertX, int numVertY, float disp, float scaleFactor, float density, float offsetInside, bool invert, bool holes, float tiling)
 {
 	typeMesh = CURVE_MESH;
@@ -689,11 +696,12 @@ void Mesh::InitPlaneMesh(int numVertX, int numVertY, float disp, float scaleFact
 	model = glm::mat4(1.0f);
 }
 
+//Método para generar los VBO's de planos
 void Mesh::InitPlane(float width, float height, float disp, float scaleFactor, bool invert, float tiling)
 {
 	GeneratePlane((int)width, (int)height, tiling, disp, invert);
 
-	if(typeMesh == DYNAMIC_MESH)
+	if (typeMesh == DYNAMIC_MESH)
 		*scalingFactor = scaleFactor * 13.0f;
 	else
 		*scalingFactor = scaleFactor * 16.0f;
@@ -721,7 +729,7 @@ void Mesh::InitPlane(float width, float height, float disp, float scaleFactor, b
 	if ((*programa).getTangent() != -1)
 	{
 		LoadVBO(tangentVBO, numVerts * sizeof(float) * 3, tangentArray, 3, (*programa).getTangent());
-	}	
+	}
 	if ((*programa).getTexCoordU() != -1)
 	{
 		LoadVBO(texCoordUVBO, numVerts * sizeof(int), uArray, 1, (*programa).getTexCoordU());
@@ -743,6 +751,7 @@ void Mesh::InitPlane(float width, float height, float disp, float scaleFactor, b
 	model = glm::mat4(1.0f);
 }
 
+//Método para generar los VBO's de los planos del GodRay
 void Mesh::InitPlaneGodRay(float width, float height, float disp, float scaleFactor, bool invert, float tiling)
 {
 	GeneratePlane((int)width, (int)height, tiling, disp, invert);
@@ -780,6 +789,7 @@ void Mesh::InitPlaneGodRay(float width, float height, float disp, float scaleFac
 	model = glm::mat4(1.0f);
 }
 
+//Método para los VBO's del cubemap
 void Mesh::InitSky()
 {
 	glGenVertexArrays(1, &vao);
@@ -800,13 +810,14 @@ void Mesh::InitSky()
 	model = glm::mat4(1.0f);
 }
 
+//Método que utiliza assimp para importar mallas usadas en versiones anteriores
 void Mesh::ImportMesh(const std::string &pFile) {
 	Assimp::Importer importer;
 
 	importer.SetPropertyInteger(AI_CONFIG_PP_RVC_FLAGS,
 		aiComponent_CAMERAS | aiComponent_LIGHTS | aiComponent_COLORS |
 		aiComponent_BONEWEIGHTS | aiComponent_ANIMATIONS | aiComponent_TANGENTS_AND_BITANGENTS);
-	
+
 	const aiScene *scene = importer.ReadFile(pFile, aiProcess_GenSmoothNormals | aiProcess_RemoveComponent | aiProcess_Triangulate | aiProcess_CalcTangentSpace);
 	aiMesh *mesh = scene->mMeshes[0];
 
@@ -829,30 +840,30 @@ void Mesh::ImportMesh(const std::string &pFile) {
 		{
 			//if (mesh->mTextureCoords != NULL)
 			//{
-				aiVector3D uv = mesh->mTextureCoords[0][face.mIndices[j]];
-				memcpy(uvArray, &uv, sizeof(float) * 2);
-				uvArray += 2;
+			aiVector3D uv = mesh->mTextureCoords[0][face.mIndices[j]];
+			memcpy(uvArray, &uv, sizeof(float) * 2);
+			uvArray += 2;
 			//}
 
 			//if (mesh->mNormals != NULL) 
 			//{
-				aiVector3D normal = mesh->mNormals[face.mIndices[j]];
-				memcpy(normalArray, &normal, sizeof(float) * 3);
-				normalArray += 3;
+			aiVector3D normal = mesh->mNormals[face.mIndices[j]];
+			memcpy(normalArray, &normal, sizeof(float) * 3);
+			normalArray += 3;
 			//}
 
 			//if (mesh->mTangents != NULL)
 			//{
-				aiVector3D tangent = mesh->mTangents[face.mIndices[j]];
-				memcpy(tangentArray, &tangent, sizeof(float) * 3);
-				tangentArray += 3;
+			aiVector3D tangent = mesh->mTangents[face.mIndices[j]];
+			memcpy(tangentArray, &tangent, sizeof(float) * 3);
+			tangentArray += 3;
 			//}
-			
-	/*		if (mesh->mNumVertices != NULL)
+
+			/*		if (mesh->mNumVertices != NULL)
 			{*/
-				aiVector3D pos = mesh->mVertices[face.mIndices[j]];
-				memcpy(vertexArray, &pos, sizeof(float) * 3);
-				vertexArray += 3;
+			aiVector3D pos = mesh->mVertices[face.mIndices[j]];
+			memcpy(vertexArray, &pos, sizeof(float) * 3);
+			vertexArray += 3;
 			//}
 
 			arrayIndex[cont] = face.mIndices[j];
@@ -878,6 +889,9 @@ void Mesh::AddDisplacementHoleShader(GLSLProgram &ps) {
 	this->typeMesh = HOLE_MESH;
 }
 
+//Método que genera la geometría de un plano normal, se le indica el numero de vertices y la densidad de los puntos, 
+//así como la orientacion del plano.
+//Generamos un array de vertices, indices, coordenadas UV, normales y, coordenadas U y V separadas
 void Mesh::GeneratePlane(int width, int height, float tiling, float density, bool invert)
 {
 	vertexArray = new float[width * height * 3];
@@ -895,16 +909,16 @@ void Mesh::GeneratePlane(int width, int height, float tiling, float density, boo
 	arrayIndex = new unsigned int[tamW * tamH * 2 * 3];
 
 	int ind = 0;
-	for (int w = -width/2; w < width/2; w++)
+	for (int w = -width / 2; w < width / 2; w++)
 	{
-		for (int h = -height/2; h < height/2; h++, ind += 3)
+		for (int h = -height / 2; h < height / 2; h++, ind += 3)
 		{
 			vertexArray[ind] = float(w) * density;
-			if(invert)
-				vertexArray[ind+1] = 50.0f;
+			if (invert)
+				vertexArray[ind + 1] = 50.0f;
 			else
 				vertexArray[ind + 1] = 0.0f;
-			vertexArray[ind+2] = float(h) * density;
+			vertexArray[ind + 2] = float(h) * density;
 		}
 	}
 
@@ -912,7 +926,7 @@ void Mesh::GeneratePlane(int width, int height, float tiling, float density, boo
 	ind = 0;
 	for (int w = 0; w < tamW; w++)
 	{
-		for (int h = 0; h < tamH; h++, ind +=6)
+		for (int h = 0; h < tamH; h++, ind += 6)
 		{
 			if (!invert)
 			{
@@ -942,7 +956,7 @@ void Mesh::GeneratePlane(int width, int height, float tiling, float density, boo
 	}
 
 	numFaces = ind / 3;
-	
+
 	//Coordinates Normales
 	uvArray = new float[width * height * 2];
 	uArray = new int[width * height];
@@ -975,7 +989,7 @@ void Mesh::GeneratePlane(int width, int height, float tiling, float density, boo
 		for (int h = 0; h < height; h++, ind += 2)
 		{
 			uvArray[ind] = cU;
-			uvArray[ind+1] = cV;
+			uvArray[ind + 1] = cV;
 			cV += v;
 		}
 		cU += u;
@@ -983,6 +997,10 @@ void Mesh::GeneratePlane(int width, int height, float tiling, float density, boo
 	}
 }
 
+//Método que genera la geometría de un plano que se curva siguiendo la spline, se le indica el numero de vertices y la densidad de los puntos, 
+//así como la orientacion del plano.
+//Generamos un array de vertices, indices, coordenadas UV, normales y, coordenadas U y V separadas.
+//Realizamos un escalado de la spline en X y Z.
 void Mesh::GenerateCurvedPlane(int width, int height, float tiling, float density, float offsetInside, bool invert)
 {
 	isCurvePlane = true;
@@ -1035,7 +1053,7 @@ void Mesh::GenerateCurvedPlane(int width, int height, float tiling, float densit
 		{
 			vertexArray[ind] = coord.x; // (w)* density;
 			vertexArray[ind + 1] = float(h) * density; //float(h) * density; 
-			vertexArray[ind + 2] =  coord.z;
+			vertexArray[ind + 2] = coord.z;
 
 			if (!invert)
 			{
@@ -1047,7 +1065,7 @@ void Mesh::GenerateCurvedPlane(int width, int height, float tiling, float densit
 				normalArray[ind] = normal.x;
 				normalArray[ind + 2] = normal.z;
 			}
-			
+
 			normalArray[ind + 1] = 0.0f;
 		}
 
@@ -1055,7 +1073,7 @@ void Mesh::GenerateCurvedPlane(int width, int height, float tiling, float densit
 	}
 
 	int offInd = 0;
-	ind -= height*3;
+	ind -= height * 3;
 	for (int h = 0, offInd = 0; h < height; h++, ind += 3, offInd += 3)
 	{
 		vertexArray[ind] = vertexArray[h * 3];
@@ -1152,6 +1170,7 @@ void Mesh::ModifyPlane(float value)
 	}
 }
 
+//Metodos que configura texturas, y el ruido de perlin para el agua
 void Mesh::GenerateWater(char *nameTex1, char *nameTex2, char *nameTex3, float scale)
 {
 	typeMesh = DYNAMIC_MESH;
@@ -1167,6 +1186,7 @@ void Mesh::GenerateWater(char *nameTex1, char *nameTex2, char *nameTex3, float s
 	timelapse = 0.0f;
 }
 
+//Metodos que configura texturas para el GodRay
 void Mesh::GenerateGodRay(char *nameTex1, char *nameTex2, float scale)
 {
 	typeMesh = GODRAY_MESH;
@@ -1182,14 +1202,13 @@ void Mesh::GenerateGodRay(char *nameTex1, char *nameTex2, float scale)
 	timelapse = 0.0f;
 }
 
+//Metodos que configura texturas para las plantas
 void Mesh::GeneratePlant(char *nameTex1, char *nameTex2, float scale)
 {
 	typeMesh = EMISSIVE_MESH;
 	colorTex = Texture(nameTex1);
 	specularTex = Texture(nameTex1);
 	emiTex = Texture(nameTex2);
-	//displacementMap = Texture();
-	//displacementMap.WaterTexture(nameTex2);
 	scalingFactor = new float;
 
 	*scalingFactor = 0.0f;
@@ -1197,6 +1216,7 @@ void Mesh::GeneratePlant(char *nameTex1, char *nameTex2, float scale)
 	timelapse = 0.0f;
 }
 
+//Metodos que configura texturas para el cuubemap
 void Mesh::GenerateSky(char *filename1, char *filename2, char *filename3, char *filename4, char *filename5, char *filename6)
 {
 	typeMesh = SKYBOX_MESH;
@@ -1208,6 +1228,7 @@ float Distance2DwY(Vector v1, Vector v2) {
 	return sqrt(pow(v2.x - v1.x, 2) + pow(v2.z - v1.z, 2));
 }
 
+//Metodos creados para actualizar la malla y los VBOS cuando se modifica en tiempo de ejecución uno de los puntos de control de la spline
 void Mesh::UpdateMesh()
 {
 	if (isCurvePlane)
@@ -1246,7 +1267,7 @@ void Mesh::UpdateMesh()
 			normal.Normalize();
 			invnormal.Normalize();
 
-			for (int h = 0; h < tamH+1 ; h++, ind += 3)
+			for (int h = 0; h < tamH + 1; h++, ind += 3)
 			{
 				vertexArray[ind] = coord.x; // (w)* density;
 				vertexArray[ind + 1] = float(h) * density; //float(h) * density; 
@@ -1270,8 +1291,8 @@ void Mesh::UpdateMesh()
 		}
 
 		int offInd = 0;
-		ind -= (tamH+1) * 3;
-		for (int h = 0, offInd = 0; h < tamH+1; h++, ind += 3, offInd += 3)
+		ind -= (tamH + 1) * 3;
+		for (int h = 0, offInd = 0; h < tamH + 1; h++, ind += 3, offInd += 3)
 		{
 			vertexArray[ind] = vertexArray[h * 3];
 			vertexArray[ind + 1] = vertexArray[h * 3 + 1];
@@ -1327,6 +1348,8 @@ void Mesh::UpdatePlaneMesh()
 	model = glm::mat4(1.0f);
 }
 
+//Aunque por cuestiones de tiempo no he conseguido generar las plantas procedurales,
+//mi idea consiste en crearlas por revolución, generando previamente un perfil con puntos aleatorios
 void Mesh::GenerateProceduralPlants(int numEdgeVertex)
 {
 	const float PI2 = 6.28318530718;
@@ -1348,7 +1371,7 @@ void Mesh::GenerateProceduralPlants(int numEdgeVertex)
 	arrayIndex = new unsigned int[tamW * tamH * 2 * 3];
 
 	//Generamos los vertices del perfil
-	for (int i = 0; i < numEdgeVertex * 3; i+=3)
+	for (int i = 0; i < numEdgeVertex * 3; i += 3)
 	{
 		vertexArray[i] = ((float)rand() / (RAND_MAX)) * 10;
 		vertexArray[i + 1] = (float)i * 10;
@@ -1360,20 +1383,20 @@ void Mesh::GenerateProceduralPlants(int numEdgeVertex)
 
 	for (float angulo = 0; angulo < PI2; angulo += ang)
 	{
-		for (int i = 0; i < numEdgeVertex * 3; i+=3)
+		for (int i = 0; i < numEdgeVertex * 3; i += 3)
 		{
-			float xValue = cos(angulo) * vertexArray[i] + sin(angulo) * vertexArray[i+2];
-			float yValue = vertexArray[i+1];
-			float zValue = -sin(angulo) * vertexArray[i] + cos(angulo) * vertexArray[i+2];
+			float xValue = cos(angulo) * vertexArray[i] + sin(angulo) * vertexArray[i + 2];
+			float yValue = vertexArray[i + 1];
+			float zValue = -sin(angulo) * vertexArray[i] + cos(angulo) * vertexArray[i + 2];
 
 			vertexArray[cont] = xValue;
-			vertexArray[cont+1] = yValue;
-			vertexArray[cont+2] = zValue;
+			vertexArray[cont + 1] = yValue;
+			vertexArray[cont + 2] = zValue;
 			cont += 3;
 		}
 	}
 
-	for (int i = 0; i < numVerts*3; i+=3)
+	for (int i = 0; i < numVerts * 3; i += 3)
 		printf("i: %i -> (%f, %f,%f)\n", i, vertexArray[i], vertexArray[i + 1], vertexArray[i + 2]);
 
 
@@ -1393,7 +1416,7 @@ void Mesh::GenerateProceduralPlants(int numEdgeVertex)
 			arrayIndex[ind + 4] = h + 1 + height * w + height;
 			arrayIndex[ind + 5] = h + height * w + height;
 		}
-	}	
+	}
 
 	//Coordinates Normales
 	uvArray = new float[width * height * 2];
@@ -1484,6 +1507,7 @@ void Mesh::CreateProceduralPlant()
 	//model = glm::mat4(1.0f);
 }
 
+//este metodo configura los VBO's de las plantas emisivas que se crean con impostors
 void Mesh::InitPlanePlant(float width, float height, float disp, float scaleFactor, bool invert, float tiling)
 {
 	GeneratePlane((int)width, (int)height, tiling, disp, invert);
@@ -1517,6 +1541,8 @@ void Mesh::InitPlanePlant(float width, float height, float disp, float scaleFact
 	model = glm::mat4(1.0f);
 }
 
+//Este metodo nos permite crear el gradiente de color en las paredes, lo he hecho 1D en el canal rojo,
+//buscando tonalidades claras en la parte inferior de la pared y disminuyendo el color en la parte superior
 void Mesh::CreateColorVertex(int width, int height)
 {
 	float r1 = 255.0f / 255.0f;

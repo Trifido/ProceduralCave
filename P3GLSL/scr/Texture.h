@@ -13,6 +13,8 @@ enum TypeTexture
 	CUBEMAP_TEXTURE = 2
 };
 
+//Esta clase nos permite cargar las texturas y enlazarlas a los shaders.
+
 class Texture
 {
 	private:

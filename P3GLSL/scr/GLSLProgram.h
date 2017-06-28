@@ -11,6 +11,8 @@
 #include "auxiliar.h"
 #include "Light.h"
 
+//Clase para la gestión de las distintas variables de los shaders
+
 class GLSLProgram
 {
 private:

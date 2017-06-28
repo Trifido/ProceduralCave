@@ -7,6 +7,7 @@
 
 float Lerp(float start, float end, float percent);
 
+//Ruido 1D, que generamos con rangos aleatorios y una función coseno
 class SmoothSurface
 {
 	private:
@@ -18,7 +19,6 @@ class SmoothSurface
 	public:
 		SmoothSurface();
 		void SetSmoothSurface(unsigned vertexUsage);
-		//SmoothSurface(unsigned vertexUsage);
 		float SmoothSurface::Calculate(const float &x);	
 		float *GetValues() { return &values[0]; }
 		unsigned GetTotalValues() { return vertexUsage; }

@@ -42,6 +42,8 @@ void GodRay::AddLightsToShader(Light light, glm::vec3 ambientLight)
 	this->shadeProg->AddAmbientLight(ambientLight);
 }
 
+//El inicializador, configura el shader y, genera y posiciona la geometría.
+//la posicion que se establece son los puntos de control de la spline.
 void GodRay::InitGodRay(glm::vec2 position)
 {
 	int i = 0;

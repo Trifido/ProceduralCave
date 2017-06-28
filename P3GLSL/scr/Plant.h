@@ -10,6 +10,8 @@
 
 #include <vector>
 
+//Las plantas's son impostors, muy similares a los GodRays, los he creado con 4 planos que intersectan por sus centros de manera
+//que busco que tengan mayor 'volumen'
 class Plant
 {
 private:

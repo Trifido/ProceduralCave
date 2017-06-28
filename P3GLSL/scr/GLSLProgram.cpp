@@ -416,6 +416,7 @@ void GLSLProgram::AddLight(Light &light) {
 	}
 }
 
+//Este metodo agrega los distintos parametros de luces como uniforms para los shaders.
 void GLSLProgram::AddUnifLight() {
 	AddUnif1fAmbiental(ambientLight);		//LUZ AMBIENTAL
 	AddUnifNumLight(uNumPoint, numPoint);

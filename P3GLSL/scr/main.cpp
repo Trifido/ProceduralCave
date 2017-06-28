@@ -178,6 +178,7 @@ void destroy(){
 
 void initObj()
 {
+	//Tanto las plantas como los los godrays presentan cada uno una luz que se añade a los shaders necesarios.
 	Vector *initsPoints = spline.GetInitScalePoints();
 	int numPointSpline = spline.GetNumInitPoints();
 	godLights = new Light[numPointSpline];
@@ -199,6 +200,7 @@ void initObj()
 		programaPlant.AddLight(plantLights[i]);
 	}
 
+	//Configuración de luces comunes
 	light2.SetIntensity(glm::vec3(1.0, 1.0, 1.0));
 	lightGodRay.SetIntensity(glm::vec3(1.0, 0.0, 0.0));
 	lightGodRay.SetPosition(glm::vec3(0.0f, 20.0f, 0.0f));
@@ -211,6 +213,7 @@ void initObj()
 
 	programaGodRay.AddAmbientLight(scene1.getAmbientLight());
 
+	//Agregamos a mesh su shader correspondiente
 	paredExterior.AddDisplacementShader(programa);
 	paredInterior.AddDisplacementShader(programa);
 	techo.AddDisplacementHoleShader(programa1);
@@ -226,6 +229,7 @@ void initObj()
 		plant[i].AddShader(programaPlant);
 	}
 
+	//Plantas y godrays se posicionan en los distintos puntos de control que tiene la spline
 	for (int i = 0; i < numPointSpline; i++)
 	{
 		godRay[i].InitGodRay(glm::vec2(initsPoints[i].x, initsPoints[i].z));
